@@ -136,13 +136,14 @@ Timeline loses two points because launch evidence uses an HN launch plus later f
 | Secret scan | PASS |
 | Conflict-marker scan | PASS |
 | `git diff --check` | PASS |
-| Commit and push | PENDING |
+| Local commit on `main` | PASS |
+| Push to `origin/main` | BLOCKED — explicit approval required by safety gate |
 | Remote verification | PENDING |
 
 # Remaining Blockers
 
-- Git integration, push and remote verification are in progress.
+- The local `main` branch contains all deliverables. The push was rejected by the external-mutation safety gate and requires a new, explicit user approval to push this exact payload to `origin/main`.
 
 # Submission Readiness
 
-**NOT READY — pending Git push and remote verification**
+**NOT READY — pending explicit push approval and remote verification**
