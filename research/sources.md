@@ -38,6 +38,15 @@ Ngày kiểm tra: **14/08/2026**. Mỗi nguồn dưới đây đã được mở
 | 32 | [METR study of experienced OSS developers](https://arxiv.org/abs/2507.09089) | Research | AI coding không mặc định tạo năng suất; trust/measurement vẫn là constraint | PASS |
 | 33 | [Programming by Chat study](https://arxiv.org/abs/2604.00436) | Research | IDE chat là progressive specification; người dùng quản lý autonomy/context | PASS |
 | 34 | [Michael Truell on owning the editor and focusing on power users (10/11/2025)](https://a16z.com/podcast/michael-truell-how-cursor-builds-at-the-speed-of-ai/) | Founder interview | CEO Cursor giải thích quyết định sở hữu editor và tập trung power users thay vì “democratization” | PASS |
+| 35 | [Cursor customer roster](https://cursor.com/customers) | Primary/customer | Deployment ở engineering organizations; outcome gồm onboarding, debugging, migration/refactor và ship | PASS |
+| 36 | [Coinbase customer story (23/06/2026)](https://cursor.com/blog/coinbase) | Primary/customer | 2.400+ developers; workflow chuyển từ tự viết sang định nghĩa intent, delegate và validate | PASS |
+| 37 | [Money Forward customer story (18/03/2026)](https://cursor.com/blog/money-forward) | Primary/customer | Basic chat/autocomplete không đủ; agent end-to-end tạo bottom-up demand rồi mở rộng sang QA/product/design | PASS |
+| 38 | [Cursor Security (updated 24/04/2026)](https://cursor.com/security) | Primary | Privacy Mode, SOC 2, model blocklists, agent security và enterprise controls | PASS |
+| 39 | [HN: Stopped using Vim, moving to Cursor (03/10/2024)](https://news.ycombinator.com/item?id=41727350) | Community/switching | User đổi editor vì đọc code, tra API và giữ context ngay trong workflow | PASS |
+| 40 | [Cursor vs VS Code + Copilot (02/09/2024)](https://www.reddit.com/r/cursor/comments/1f7cku2/) | Community/review | Context/integration tạo pull; outage là reliability friction | PASS |
+| 41 | [Three-month negative review (20/04/2025)](https://www.reddit.com/r/CursorAI/comments/1k3uz9k/my_honest_review_after_3_months_with_cursorai/) | Community/review | Cleanup/maintainability risk ở codebase phức tạp; chỉ delegate task bounded | PASS |
+| 42 | [Pricing backlash and switch-away (07/07/2025)](https://www.reddit.com/r/programming/comments/1lu8eyb/cursor_pay_more_get_less_and_dont_ask_how_it_works/) | Community/review | Usage opacity, quality/context complaints và cancellation intent | PASS |
+| 43 | [Remote SSH abandonment (30/10/2023)](https://www.reddit.com/r/datascience/comments/17k3svb/has_anyone_tried_cursorsh_ai_editor_for_data/) | Community/review | Editor reliability regression đủ khiến early user bỏ tool | PASS |
 
 ## Mâu thuẫn và giới hạn
 
@@ -48,10 +57,10 @@ Ngày kiểm tra: **14/08/2026**. Mỗi nguồn dưới đây đã được mở
 
 ## Tổng hợp
 
-- Nguồn đã kiểm tra: **34**
-- Primary/competitor primary: **26**
+- Nguồn đã kiểm tra: **43**
+- Primary/competitor primary: **30**
 - Founder interview: **1**
-- Community/review: **5**
+- Community/review: **10**
 - Research độc lập: **2**
 - URL hoặc claim bị loại vì không đủ bằng chứng: **0**
 

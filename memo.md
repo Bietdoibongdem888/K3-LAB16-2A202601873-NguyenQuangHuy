@@ -110,3 +110,93 @@ Chủ yếu bằng workflow/context/harness; Composer model là một lớp bổ
 | Milestone selection + context | 9/10 | Selection có counterfactual và source mạnh; launch dùng HN + founder retrospective thay vì official launch announcement còn hoạt động. |
 | Revert principle | 19/20 | Tám causal reverts, principle đa dạng và reusable; một phần context lịch sử vẫn là inference từ chuỗi changelog. |
 | **TOTAL CP1** | **28/30** | CP1 đạt PASS, không còn blocker nghiêm trọng. |
+
+# §2. Tệp user & JTBD
+
+## Early adopters vs tệp hiện tại
+
+| | Early adopters | Tệp hiện tại |
+|---|---|---|
+| **Đặc điểm** | Product/software engineer 2–7 năm tại startup/đội nhỏ; daily VS Code user, đã dùng Copilot + ChatGPT, tự chọn tool và tự review nên chịu được rủi ro editor non. | **Lõi:** product engineer trong team 10–500+ kỹ sư, làm codebase production nhiều file. **Buyer phụ:** engineering/platform/security leader cần budget, rules, audit và privacy. Công ty thường trả phí. |
+| **JTBD chính** | Hiểu repo/library lạ; ship change có thể kiểm chứng mà không copy context qua chat–editor–terminal; giữ flow khỏi việc cơ học. | Ship feature/bug/refactor end-to-end; giao task bounded local/cloud và nhận diff + test để review; scale adoption nhưng vẫn kiểm soát risk. |
+| **Trước đó họ làm bằng cách nào** | VS Code + Copilot completion; ChatGPT copy/paste; grep/docs/Google; terminal/test và apply patch thủ công. | IDE/agent rời rạc; engineer làm task tuần tự; teammate/CI/manual review; team policy nằm rải trong docs, RBAC và pipeline. |
+| **Trigger adoption** | Codebase context + inline/apply workflow tạo gain lớn hơn “editor cũ + Copilot”; one-click import giảm mất extensions/muscle memory. | Agent đóng loop multi-file + terminal; Background Agent trả attention; rules/hooks/sandbox/audit giảm rủi ro rollout. |
+
+Nguồn chính: [HN launch](https://news.ycombinator.com/item?id=35285047), [community switch từ Vim](https://news.ycombinator.com/item?id=41727350), [Coinbase](https://cursor.com/blog/coinbase), [Money Forward](https://cursor.com/blog/money-forward), [Cursor customers](https://cursor.com/customers). Community evidence chỉ cho thấy behavior; customer metrics là self-reported.
+
+## JTBD chính
+
+### JTBD 1 — Hiểu đúng codebase
+
+> Khi nhận bug/feature trong repo lớn hoặc chưa quen, tôi muốn dựng nhanh mental model về kiến trúc, dependency và nơi cần sửa, để bắt đầu implementation đúng chỗ mà không mất hàng giờ tự mở file và gom context.
+
+**Old alternative:** IDE search/grep, đọc docs, lần call sites và hỏi teammate.
+
+### JTBD 2 — Ship change có thể kiểm chứng (primary)
+
+> Khi phải giao feature, bug fix, migration hoặc refactor trong codebase production, tôi muốn biến intent thành diff nhiều file và đóng feedback loop, để ship nhanh hơn nhưng vẫn review, test và chịu trách nhiệm về chất lượng.
+
+**Old alternative:** code thủ công + Copilot snippet; copy/paste với ChatGPT; tự ghép patch và chạy edit–test–fix qua terminal.
+
+### JTBD 3 — Giữ flow
+
+> Khi implementation bị ngắt bởi boilerplate, tra API, lint/test failure và sửa lặp lại, tôi muốn xử lý các bước cơ học ngay trong working context, để dành attention cho kiến trúc và trade-off.
+
+**Old alternative:** web/docs, scripts, autocomplete và chuyển liên tục giữa editor–chat–terminal.
+
+### JTBD 4 — Delegate có guardrail
+
+> Khi nhiều task độc lập hoặc maintenance cạnh tranh attention, tôi muốn giao task bounded cho agent local/cloud và nhận lại diff, test/artifact, để tăng throughput song song mà không mất accountability.
+
+**Old alternative:** tự làm tuần tự, giao teammate hoặc tự điều phối nhiều chat/terminal/branch.
+
+## Dịch chuyển tệp
+
+**Early:** AI-curious VS Code power user, adoption cá nhân, risk tolerance cao. **Current:** professional engineer dùng agent trên production code; mở rộng tới team/enterprise buyer cần governance. Không phải “developer → non-developer”; QA/product/design mới là secondary evidence.
+
+```text
+Codebase context (07/2023)
+→ giảm tự gom context → hiểu/sửa repo khả thi → VS Code power user dùng daily
+
+Agent in Composer (11/2024)
+→ context + terminal + multi-file diff → đóng loop task → product engineer dùng cho work thật
+
+Background Agent + enterprise governance (06–10/2025)
+→ async delegation + rules/hooks/sandbox/audit → giảm attention/risk → team và enterprise rollout
+```
+
+## Switching Cost — Four Forces
+
+### Push
+
+Workflow cũ phân mảnh giữa IDE, Copilot, chatbot, docs và terminal; user phải đóng gói context, áp patch và chạy feedback loop. Money Forward cho biết basic autocomplete/chat trước đó không tạo time saving đủ rõ. Pain đẩy mạnh nhất khi repo lớn và deadline ngắn.
+
+### Pull
+
+Cursor gom repo context → plan/edit nhiều file → terminal/test → diff/review vào một loop, rồi mở delegation async. Outcome là giảm time-to-change và attention spent, không chỉ “có Agent.” Coinbase dùng ticket → implementation → review; community stories ghi nhận bỏ Copilot/Vim vì context và apply workflow.
+
+### Anxiety
+
+Agent có thể quên brief, sửa quá phạm vi hoặc tạo code khó maintain; command và source code tăng security blast radius; usage khó đoán làm mất budget trust. Senior maintainer và enterprise buyer cảm nhận mạnh nhất, nên vẫn cần human review, sandbox, privacy, audit và budget control. [Negative review](https://www.reddit.com/r/CursorAI/comments/1k3uz9k/my_honest_review_after_3_months_with_cursorai/) · [Pricing backlash](https://www.reddit.com/r/programming/comments/1lu8eyb/cursor_pay_more_get_less_and_dont_ask_how_it_works/)
+
+### Habit / Inertia
+
+Extensions, keybindings, debugger, remote dev, terminal setup và team convention khiến editor cũ rất sticky; user từng bỏ Cursor chỉ vì remote SSH regression. One-click VS Code import làm yếu lực này nhưng không xóa nhu cầu stability và review/rollback quen thuộc.
+
+## Lực mạnh nhất
+
+**Pull mạnh nhất trong quyết định chuyển sang Cursor.** Push đã tồn tại trước Cursor và có thể được giải một phần bằng Copilot/ChatGPT; Habit và Anxiety còn chống adoption. Chỉ khi context + execution + verification tạo outcome khác cấp độ, user mới có lý do bỏ workflow quen. Nếu hỏi lực giữ user *ở lại Cursor*, đó là habit mới quanh rules, shortcuts, agent/review workflow và environment—not data lock-in.
+
+## Nếu lực đó biến mất
+
+Nếu VS Code/GitHub, Claude Code hoặc Codex có loop context–agent–review tương đương với bundle/cost dễ hiểu hơn, switching incentive giảm mạnh: user cá nhân quay lại editor cũ và enterprise ưu tiên vendor sẵn identity/repo/procurement. Cursor phải thắng bằng reliability của context/harness, model-routing economics và governed workflow/integration; “AI trong editor” không còn đủ.
+
+## CP2 checkpoint audit
+
+- [x] Early/current segment cụ thể và có evidence
+- [x] 7 candidates, chọn 4 JTBD không dựa trên feature; có old alternatives
+- [x] Segment shift nối causal với 3 milestone CP1
+- [x] Có positive, negative, switching và counter-switch evidence
+- [x] Four Forces + strongest force + counterfactual hoàn chỉnh
+
+**Rubric estimate: User specificity + JTBD 10/10; Segment shift + Four Forces 10/10; TOTAL CP2 20/20.** Chi tiết và giới hạn nguồn nằm trong `research/user_research.md`.
