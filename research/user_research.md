@@ -2,7 +2,7 @@
 
 ## Early Adopters
 
-**Segment cụ thể:** product/software engineer tại startup nhỏ hoặc đội sản phẩm tốc độ cao; dùng VS Code hằng ngày; đã thử GitHub Copilot và ChatGPT; thường phải copy/paste code giữa editor và chatbot; theo dõi AI tooling và sẵn sàng đổi workflow nếu có lợi thế đủ lớn.
+**INFERENCE — segment cụ thể:** bằng chứng launch và chuỗi quyết định sản phẩm gợi ý early adopter là product/software engineer ở startup hoặc đội sản phẩm tốc độ cao; đã quen VS Code, Copilot/chatbot và sẵn sàng đổi workflow nếu lợi ích đủ lớn. Đây là chân dung suy ra từ bằng chứng định tính, không phải demographic do Cursor công bố.
 
 Bằng chứng:
 
@@ -12,7 +12,7 @@ Bằng chứng:
 
 ## Current Users
 
-**Segment lõi hiện tại:** professional engineering teams xây và duy trì codebase thật, từ startup/product teams đến enterprise engineering organizations; họ muốn giao task cho nhiều agent nhưng vẫn cần review, security, policy, cost control và audit.
+**INFERENCE — segment lõi hiện tại:** portfolio capability enterprise, Organizations, cloud agents và SDK gợi ý Cursor đang ưu tiên professional engineering teams xây và duy trì codebase thật; họ muốn delegation nhưng vẫn cần review, security, policy, cost control và audit. Đây là diễn giải chiến lược, không phải thống kê cơ cấu user.
 
 Bằng chứng:
 
@@ -21,7 +21,7 @@ Bằng chứng:
 - [Cloud agent Builds](https://cursor.com/blog/builds) giải quyết setup/reliability ở repo phức tạp; [AIUC-1](https://cursor.com/blog/aiuc-1) giải quyết enterprise anxiety về hành vi agent.
 - [Cursor SDK](https://cursor.com/blog/typescript-sdk) mở rộng user từ “developer ngồi trong editor” sang platform/engineering team nhúng agent vào CI/CD và internal product.
 
-Không kết luận “Cursor dành cho tất cả developer”. Student/hobbyist và non-engineer có thể dùng, nhưng evidence sản phẩm hiện tại ưu tiên professional teams và organizations.
+Không kết luận “Cursor dành cho tất cả developer”. Student/hobbyist và non-engineer có thể dùng; từ evidence sản phẩm, nhóm suy ra professional teams và organizations là segment được ưu tiên.
 
 ## Positive Reviews
 

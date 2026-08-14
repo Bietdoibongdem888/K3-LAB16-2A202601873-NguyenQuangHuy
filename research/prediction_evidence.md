@@ -27,7 +27,7 @@ Evidence anchors:
 
 - [Cursor Router](https://cursor.com/changelog) đã phân loại task, có Cost/Balance/Intelligence và admin controls; Teams bật mặc định.
 - [Cursor 2.0](https://cursor.com/changelog/2-0) giới thiệu Composer, cho thấy Cursor không muốn chỉ chuyển tiếp model của bên khác.
-- [Pricing docs](https://docs.cursor.com/account/pricing) và community feedback về cost/context cho thấy choice overload và bill anxiety là blocker.
+- [Models & Pricing docs](https://cursor.com/docs/models-and-pricing) mô tả usage pools, on-demand billing và Auto modes; community feedback về cost/context cho thấy bill anxiety là blocker.
 - Competitor link: model providers có thể bundle agent; routing đa model là cách Cursor giữ model portability và tối ưu unit economics.
 
 Confidence: **Medium-high (70%)**.

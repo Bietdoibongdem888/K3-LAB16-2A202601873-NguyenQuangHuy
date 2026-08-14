@@ -61,7 +61,7 @@ Cursor đưa một early Agent vào Composer: agent có thể tự chọn contex
 
 ### Context
 
-Repo context và multi-file editing đã khiến AI đủ hữu ích cho task lớn hơn một completion. Nhưng user vẫn phải điều phối chuỗi “tìm file → sửa → chạy lệnh → đọc lỗi → sửa lại”. Terminal access và autonomous context selection khép chuỗi đó thành một goal-seeking loop.
+Repo context đã khiến AI đủ hữu ích cho task lớn hơn một completion. Nhưng user vẫn phải điều phối chuỗi “tìm file → sửa → chạy lệnh → đọc lỗi → sửa lại”. Terminal access và autonomous context selection khép chuỗi đó thành một goal-seeking loop.
 
 ### Decision logic
 

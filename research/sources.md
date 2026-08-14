@@ -22,17 +22,17 @@ Ngày kiểm tra: **14/08/2026**. Mỗi nguồn dưới đây đã được mở
 | 16 | [Organizations for Enterprise (03/06/2026)](https://cursor.com/blog/organizations) | Primary | Quản trị budget, model, permission theo đơn vị/cấp tổ chức | PASS |
 | 17 | [Cursor Router (22/07/2026)](https://cursor.com/changelog) | Primary | Router chọn model theo task và tối ưu cost/quality; admin controls | PASS |
 | 18 | [Cloud agent Builds (13/08/2026)](https://cursor.com/blog/builds) | Primary | Snapshot môi trường giúp startup nhanh và resilient hơn | PASS |
-| 19 | [AIUC-1 certification (13/08/2026)](https://cursor.com/blog/aiuc-1) | Primary | Agent safeguards được audit và adversarial test định kỳ | PASS |
-| 20 | [Cursor pricing](https://docs.cursor.com/account/pricing) | Primary | Cấu trúc usage-based; Teams $40/user/tháng; Enterprise custom | PASS |
-| 21 | [Cursor Enterprise page](https://www.cursor.com/enterprise) | Primary | Indexing, privacy mặc định và nhu cầu quản trị enterprise | PASS |
-| 22 | [Background Agents documentation](https://docs.cursor.com/background-agent) | Primary | Remote VM, quyền GitHub, retention và rủi ro prompt injection | PASS |
+| 19 | [AIUC-1 certification (13/08/2026)](https://cursor.com/blog/aiuc-1) | Primary | Independent audit, adversarial testing và ongoing evaluation cho agent safeguards | PASS |
+| 20 | [Cursor Models & Pricing](https://cursor.com/docs/models-and-pricing) | Primary | Usage pools/on-demand usage; Teams Standard $40/user/tháng; Enterprise custom | PASS |
+| 21 | [Cursor Enterprise page](https://cursor.com/enterprise) | Primary | Indexing, privacy mặc định và nhu cầu quản trị enterprise | PASS |
+| 22 | [Cloud Agents documentation](https://cursor.com/docs/cloud-agent) | Primary | Isolated cloud VM, source-control connection và khả năng test/verify | PASS |
 | 23 | [Cursor on Product Hunt](https://www.producthunt.com/products/cursor?launch=cursor-1-0) | Community | Người dùng coi tích hợp AI, context đa file và VS Code compatibility là lý do đổi | PASS |
 | 24 | [HN launch thread (24/03/2023)](https://news.ycombinator.com/item?id=35285047) | Community | Phản ứng launch sớm và hoài nghi về editor/wrapper | PASS |
 | 25 | [Cursor pricing megathread](https://www.reddit.com/r/cursor/comments/1lwjxic/pricing_megathread/) | Community | Anxiety về minh bạch usage và thay đổi pricing | PASS |
 | 26 | [Cursor pay-as-you-go discussion (21/06/2026)](https://www.reddit.com/r/cursor/comments/1uboz5c/cursors_20_plan_is_incredible_but_the_payasyougo/) | Community | Context overhead/cost là friction; tốc độ Composer vẫn tạo pull | PASS |
 | 27 | [Cursor appreciation post (01/06/2026)](https://www.reddit.com/r/cursor/comments/1ttxvgk/cursor_appreciation_post/) | Community | Tốc độ, guardrail và review phù hợp project nhỏ | PASS |
 | 28 | [GitHub Copilot coding agent (13/02/2026)](https://github.blog/changelog/2026-02-13-network-configuration-changes-for-copilot-coding-agent/) | Competitor primary | GitHub có background agent tự mở PR | PASS |
-| 29 | [OpenAI Codex app (02/02/2026; Windows 04/03/2026)](https://openai.com/index/introducing-the-codex-app/) | Competitor primary | Multi-agent/worktree/automation và phân phối qua ChatGPT | PASS |
+| 29 | [OpenAI Codex app (02/02/2026; Windows 04/03/2026)](https://openai.com/index/introducing-the-codex-app/) | Competitor primary | Multi-agent, scheduled Automations và phân phối qua ChatGPT/CLI/IDE/cloud | PASS |
 | 30 | [Claude Code for Team & Enterprise (20/08/2025)](https://www.anthropic.com/news/claude-code-on-team-and-enterprise) | Competitor primary | Claude Code đi vào enterprise với admin/compliance | PASS |
 | 31 | [Google Jules public launch (06/08/2025)](https://blog.google/innovation-and-ai/models-and-research/google-labs/jules-now-available/) | Competitor primary | Asynchronous agent + GitHub + subscription distribution | PASS |
 | 32 | [METR study of experienced OSS developers](https://arxiv.org/abs/2507.09089) | Research | AI coding không mặc định tạo năng suất; trust/measurement vẫn là constraint | PASS |
@@ -53,7 +53,10 @@ Ngày kiểm tra: **14/08/2026**. Mỗi nguồn dưới đây đã được mở
 - Founder interview: **1**
 - Community/review: **5**
 - Research độc lập: **2**
-- URL hoặc claim bị loại vì không đủ bằng chứng: **0**
+- URL/claim đã được sửa trong final source validation: **9 findings**
+- Broken URL hoặc unsupported claim còn lại sau sửa: **0**
+
+Chi tiết từng URL và remediation: [SOURCE_AUDIT.md](SOURCE_AUDIT.md).
 
 ## CP1 final milestone coverage
 

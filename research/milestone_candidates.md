@@ -5,7 +5,7 @@ CP1 review toàn bộ 18 candidates theo sáu tiêu chí, mỗi tiêu chí 0–5
 | # | Date | Candidate | Category | Score /30 | Source | Status |
 |---:|---|---|---|---:|---|---|
 | 1 | 24/03/2023 | Public launch một editor xây cho AI | Launch | 27 | [HN launch](https://news.ycombinator.com/item?id=35285047), [founder interview](https://a16z.com/podcast/michael-truell-how-cursor-builds-at-the-speed-of-ai/) | **KEEP** |
-| 2 | 16/04/2023 | Ghost Mode không lưu dữ liệu | Enterprise | 18 | [0.2.4](https://www.cursor.com/changelog/v0-2-4-chat-scrolling-ghost-mode-2023-04-16-) | DROP — trust feature sớm nhưng chưa đổi workflow/positioning mạnh bằng enterprise governance |
+| 2 | 16/04/2023 | Ghost Mode không lưu dữ liệu | Enterprise | 18 | [0.2.4](https://cursor.com/changelog/0-2-4) | DROP — trust feature sớm nhưng chưa đổi workflow/positioning mạnh bằng enterprise governance |
 | 3 | 04/05/2023 | One-click import extension từ VS Code | Distribution | 23 | [0.2.9](https://cursor.com/changelog/0-2-9) | DROP — tactic giảm friction, được subsume bởi quyết định lớn hơn là sở hữu editor |
 | 4 | 24/06/2023 | Chat v2 với `@` file/code/docs | Core workflow | 20 | [0.2.34](https://cursor.com/changelog/0-2-34) | DROP — cải tiến interaction, nhưng codebase context tháng 7 đổi trajectory rõ hơn |
 | 5 | 03/07/2023 | Cmd+K inline edits + docs retrieval | Core workflow | 21 | [0.2.39](https://cursor.com/changelog/0-2-39) | DROP — quan trọng cho flow nhưng incremental so với context ở cấp repo |

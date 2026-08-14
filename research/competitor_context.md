@@ -7,11 +7,11 @@ Cuộc cạnh tranh không còn là “ai autocomplete tốt hơn”. Các đố
 | Competitor | Current strategic pressure | Implication for Cursor | Source |
 |---|---|---|---|
 | GitHub Copilot / Microsoft | Coding agent chạy nền bằng GitHub Actions, tự mở PR; distribution nằm ngay repo và VS Code | Cursor không thể chỉ dựa vào IDE; phải thắng ở harness, context, multi-model và agent control plane | [GitHub](https://github.blog/changelog/2026-02-13-network-configuration-changes-for-copilot-coding-agent/) |
-| OpenAI Codex | App/CLI/IDE/cloud dưới một ChatGPT subscription; worktrees, multi-agent, automations | Model provider có thể bundle model + agent + distribution, nén margin của wrapper | [OpenAI](https://openai.com/index/introducing-the-codex-app/) |
+| OpenAI Codex | App/CLI/IDE/cloud dưới một ChatGPT subscription; multi-agent và scheduled Automations | Model provider có thể bundle model + agent + distribution, nén margin của wrapper | [OpenAI](https://openai.com/index/introducing-the-codex-app/) |
 | Anthropic Claude Code | Terminal-native, được bundle vào Team/Enterprise, có admin/compliance | Power users có thể chọn harness gần model và giữ editor hiện tại | [Anthropic](https://www.anthropic.com/news/claude-code-on-team-and-enterprise) |
 | Google Jules | Async cloud agent tích hợp GitHub và bundle qua Google AI tiers | Background task trở thành commodity; reliability và workflow integration mới phân biệt | [Google](https://blog.google/innovation-and-ai/models-and-research/google-labs/jules-now-available/) |
-| VS Code | Nền tảng extension và muscle memory lớn; là alternative mặc định | Fork giúp Cursor giảm switching cost nhưng tạo dependency và nguy cơ feature parity từ upstream | [VS Code base evidenced by import decision](https://cursor.com/changelog/0-2-9) |
-| Windsurf / agentic IDEs | Cạnh tranh trực tiếp về IDE-native context, pricing và agent UX | Làm giảm uniqueness của “AI editor”; Cursor cần platform moat ngoài editor | [Product Hunt alternative set](https://www.producthunt.com/products/cursor?launch=cursor-1-0) |
+| VS Code | Nền tảng extension và muscle memory lớn; là alternative mặc định | **INFERENCE:** one-click extension import giảm switching cost và cho thấy compatibility là đòn bẩy phân phối | [Cursor 0.2.9](https://cursor.com/changelog/0-2-9) |
+| Windsurf / agentic IDEs | Product Hunt liệt kê Windsurf trong nhóm alternatives của Cursor | **INFERENCE:** sự hiện diện của agentic IDE alternatives làm giảm uniqueness của nhãn “AI editor” | [Product Hunt alternative set](https://www.producthunt.com/products/cursor?launch=cursor-1-0) |
 
 ## Strategic reading
 
