@@ -1,0 +1,2073 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cursor Teardown & Trajectory Analysis - Slide Presentation</title>
+  <meta name="description" content="Slide thuyết trình phân tích chuyên sâu (Teardown) về Cursor - Thách thức và lộ trình tiến hóa của AI Product. Lab K3 LAB16 - Nhóm Track 1.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons for aesthetics -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* DESIGN SYSTEM & CUSTOM PROPERTIES */
+    :root {
+      --bg-dark: #07080e;
+      --bg-card: rgba(13, 16, 31, 0.7);
+      --bg-card-hover: rgba(22, 27, 51, 0.85);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(139, 92, 246, 0.2);
+      
+      /* Colors */
+      --primary: #8b5cf6;       /* Violet */
+      --primary-glow: rgba(139, 92, 246, 0.5);
+      --secondary: #06b6d4;     /* Cyan */
+      --secondary-glow: rgba(6, 182, 212, 0.5);
+      --accent: #d946ef;        /* Fuchsia */
+      --text-main: #f3f4f6;     /* Light Gray */
+      --text-muted: #9ca3af;    /* Muted Gray */
+      --success: #10b981;       /* Emerald Green */
+      --warning: #f59e0b;       /* Amber */
+      
+      /* Gradients */
+      --grad-main: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      --grad-dark: radial-gradient(circle at 50% 50%, #151233 0%, var(--bg-dark) 100%);
+      
+      /* Transitions */
+      --trans-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --trans-normal: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      --trans-slow: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-dark);
+      background-image: var(--grad-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    /* BACKGROUND GLOWS */
+    .bg-mesh {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .bg-glow-1 {
+      position: absolute;
+      top: -10%;
+      right: -10%;
+      width: 50%;
+      height: 50%;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%);
+      filter: blur(100px);
+      animation: float-glow 20s infinite alternate;
+    }
+    .bg-glow-2 {
+      position: absolute;
+      bottom: -10%;
+      left: -10%;
+      width: 50%;
+      height: 50%;
+      background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%);
+      filter: blur(100px);
+      animation: float-glow 25s infinite alternate-reverse;
+    }
+
+    @keyframes float-glow {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(50px, 30px) scale(1.1); }
+    }
+
+    /* GRID OVERLAY */
+    .bg-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      background-image: linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    /* LAYOUT CONTAINER */
+    #presentation-container {
+      width: 100%;
+      flex-grow: 1;
+      display: flex;
+      position: relative;
+      z-index: 2;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* SLIDE STYLES */
+    .slide {
+      position: absolute;
+      width: 90%;
+      max-width: 1200px;
+      height: 75vh;
+      min-height: 500px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(30px) scale(0.98);
+      transition: opacity var(--trans-normal), transform var(--trans-normal), visibility var(--trans-normal);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Glassmorphism Slide Content Wrapper */
+    .slide-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 40px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3),
+                  inset 0 1px 1px rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: var(--grad-main);
+    }
+
+    .slide-header {
+      margin-bottom: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 15px;
+    }
+
+    .slide-title-area {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .slide-icon {
+      font-size: 24px;
+      background: var(--grad-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    h2 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: var(--text-main);
+    }
+
+    .slide-subtitle {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      color: var(--secondary);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .slide-body {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding-right: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Custom scrollbar for slide bodies */
+    .slide-body::-webkit-scrollbar {
+      width: 6px;
+    }
+    .slide-body::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    .slide-body::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* SLIDE 1: COVER SPECIFICS */
+    .cover-slide {
+      text-align: center;
+      align-items: center;
+    }
+    .cover-card {
+      align-items: center;
+      justify-content: center;
+      padding: 60px 40px;
+    }
+    .cover-badge {
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid var(--primary);
+      padding: 6px 18px;
+      border-radius: 30px;
+      color: var(--primary);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      letter-spacing: 2px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+      animation: pulse-glow 2s infinite alternate;
+    }
+    @keyframes pulse-glow {
+      0% { box-shadow: 0 0 10px rgba(139, 92, 246, 0.1); }
+      100% { box-shadow: 0 0 25px rgba(139, 92, 246, 0.4); }
+    }
+    .cover-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 68px;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      margin-bottom: 15px;
+      background: linear-gradient(to right, #ffffff, #d946ef, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .cover-desc {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 700px;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+    .cover-meta {
+      display: flex;
+      gap: 30px;
+      justify-content: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 30px;
+      width: 80%;
+    }
+    .meta-box {
+      text-align: left;
+    }
+    .meta-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--secondary);
+      margin-bottom: 5px;
+      font-family: 'Orbitron', sans-serif;
+    }
+    .meta-value {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .member-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .member-tag {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    /* SLIDE 2: CORE PHILOSOPHY & JTBD */
+    .philosophy-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 30px;
+      flex-grow: 1;
+    }
+    .card-dark-gradient {
+      background: linear-gradient(145deg, rgba(13, 16, 31, 0.8) 0%, rgba(7, 8, 14, 0.9) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .highlight-glow-cyan {
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      box-shadow: 0 0 20px rgba(6, 182, 212, 0.05);
+    }
+    .highlight-glow-violet {
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.05);
+    }
+    .section-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--secondary);
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title.purple-title {
+      color: var(--primary);
+    }
+    .jtbd-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100%;
+    }
+    .jtbd-quote {
+      font-size: 16px;
+      line-height: 1.6;
+      font-weight: 500;
+      color: #fff;
+      border-left: 4px solid var(--primary);
+      padding-left: 15px;
+      margin: 15px 0;
+    }
+    .comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    .comp-table th, .comp-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 13.5px;
+    }
+    .comp-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .comp-table td strong {
+      color: var(--secondary);
+    }
+
+    /* SLIDE 3: SEGMENT SHIFT & EVOLUTION */
+    .shift-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      flex-grow: 1;
+    }
+    .shift-card {
+      background: rgba(13, 16, 31, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: transform var(--trans-normal), border-color var(--trans-normal), box-shadow var(--trans-normal);
+    }
+    .shift-card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(139, 92, 246, 0.3);
+      box-shadow: 0 10px 30px rgba(139, 92, 246, 0.08);
+    }
+    .shift-year {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 32px;
+      font-weight: 900;
+      background: var(--grad-main);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    .shift-user-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 15px;
+    }
+    .shift-list {
+      list-style-type: none;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .shift-list li {
+      margin-bottom: 10px;
+      position: relative;
+      padding-left: 18px;
+      line-height: 1.5;
+    }
+    .shift-list li::before {
+      content: '→';
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+    }
+    .shift-arrow {
+      position: absolute;
+      top: 50%;
+      right: -15px;
+      transform: translateY(-50%) rotate(90deg);
+      font-size: 20px;
+      color: var(--primary);
+      opacity: 0.3;
+      display: none;
+    }
+    @media (min-width: 768px) {
+      .shift-arrow {
+        display: block;
+        transform: translateY(-50%);
+        right: -12px;
+      }
+      .shift-card:last-child .shift-arrow {
+        display: none;
+      }
+    }
+
+    /* SLIDE 4: INTERACTIVE TIMELINE DASHBOARD (THE CORE) */
+    .timeline-dashboard {
+      display: grid;
+      grid-template-columns: 350px 1fr;
+      gap: 25px;
+      flex-grow: 1;
+      height: 100%;
+      overflow: hidden;
+    }
+    .timeline-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow-y: auto;
+      padding-right: 8px;
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .timeline-btn {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 12px 16px;
+      text-align: left;
+      cursor: pointer;
+      color: var(--text-muted);
+      transition: all var(--trans-fast);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+    .timeline-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+    .timeline-btn.active {
+      background: rgba(139, 92, 246, 0.1);
+      border-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 0 15px rgba(139, 92, 246, 0.1);
+    }
+    .timeline-btn.active::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 60%;
+      background: var(--primary);
+      border-radius: 4px 0 0 4px;
+    }
+    .tbtn-date {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--secondary);
+      display: block;
+      margin-bottom: 2px;
+    }
+    .tbtn-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13.5px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+    }
+    .timeline-details {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+      padding-left: 5px;
+    }
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 15px;
+    }
+    .detail-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .detail-date-badge {
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid var(--secondary);
+      padding: 3px 10px;
+      border-radius: 4px;
+      color: var(--secondary);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    .detail-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--primary);
+      margin-bottom: 6px;
+      font-family: 'Orbitron', sans-serif;
+    }
+    .detail-text {
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: var(--text-main);
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    .detail-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 10px;
+      padding: 15px;
+    }
+    .detail-pattern-box {
+      border-left: 3px solid var(--secondary);
+    }
+    .detail-source-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--secondary);
+      text-decoration: none;
+      font-size: 12px;
+      transition: color var(--trans-fast);
+      margin-top: 5px;
+    }
+    .detail-source-link:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    /* SLIDE 5: 8 REVERT PRINCIPLES */
+    .principles-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      flex-grow: 1;
+    }
+    .principle-card {
+      background: rgba(13, 16, 31, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      transition: all var(--trans-normal);
+      cursor: pointer;
+      position: relative;
+    }
+    .principle-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--primary);
+      background: var(--bg-card-hover);
+      box-shadow: 0 10px 25px rgba(139, 92, 246, 0.12);
+    }
+    .principle-num {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--secondary);
+      margin-bottom: 5px;
+    }
+    .principle-name {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .principle-desc {
+      font-size: 11.5px;
+      line-height: 1.4;
+      color: var(--text-muted);
+      flex-grow: 1;
+    }
+    .principle-pattern {
+      margin-top: 10px;
+      font-size: 11px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 8px;
+      color: var(--secondary);
+      font-style: italic;
+    }
+
+    /* SLIDE 6: EXCLUDED MILESTONES */
+    .excluded-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      flex-grow: 1;
+    }
+    .ex-card {
+      background: rgba(13, 16, 31, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .ex-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .ex-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .ex-badge {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid #ef4444;
+      color: #ef4444;
+      font-size: 10px;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'Orbitron', sans-serif;
+      letter-spacing: 1px;
+    }
+    .ex-reason {
+      font-size: 12.5px;
+      line-height: 1.45;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .ex-counterfactual {
+      background: rgba(255, 255, 255, 0.02);
+      border-left: 2px solid var(--warning);
+      padding: 8px 12px;
+      border-radius: 0 6px 6px 0;
+      font-size: 11.5px;
+      color: #fff;
+    }
+
+    /* SLIDE 7: FOUR FORCES OF ADOPTION */
+    .forces-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 20px;
+      flex-grow: 1;
+      position: relative;
+    }
+    .force-card {
+      background: rgba(13, 16, 31, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      position: relative;
+      overflow: hidden;
+      transition: all var(--trans-normal);
+    }
+    .force-card:hover {
+      background: rgba(22, 27, 51, 0.6);
+      transform: scale(1.01);
+    }
+    .force-glow-push { border-color: rgba(245, 158, 11, 0.2); }
+    .force-glow-pull { border-color: rgba(16, 185, 129, 0.2); }
+    .force-glow-anxiety { border-color: rgba(239, 68, 68, 0.2); }
+    .force-glow-habit { border-color: rgba(139, 92, 246, 0.2); }
+    
+    .force-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .force-icon {
+      font-size: 18px;
+    }
+    .push-color { color: var(--warning); }
+    .pull-color { color: var(--success); }
+    .anxiety-color { color: #ef4444; }
+    .habit-color { color: var(--primary); }
+
+    .force-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .force-body {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+    .force-badge {
+      position: absolute;
+      right: 15px;
+      top: 15px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      opacity: 0.2;
+      font-weight: 900;
+    }
+
+    /* SLIDE 8: FUTURE PREDICTIONS (2026-2027) */
+    .predictions-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      flex-grow: 1;
+    }
+    .pred-card {
+      background: linear-gradient(135deg, rgba(13, 16, 31, 0.6) 0%, rgba(7, 8, 14, 0.8) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: all var(--trans-normal);
+    }
+    .pred-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(6, 182, 212, 0.08);
+      border-color: var(--secondary);
+    }
+    .pred-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 12px;
+    }
+    .pred-badge {
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid var(--secondary);
+      color: var(--secondary);
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'Orbitron', sans-serif;
+    }
+    .pred-confidence {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      color: var(--success);
+      font-weight: 700;
+    }
+    .pred-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15.5px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+      line-height: 1.3;
+    }
+    .pred-desc {
+      font-size: 12.5px;
+      line-height: 1.45;
+      color: var(--text-muted);
+      margin-bottom: 15px;
+      flex-grow: 1;
+    }
+    .pred-falsification {
+      background: rgba(239, 68, 68, 0.04);
+      border-left: 2px solid #ef4444;
+      padding: 10px;
+      border-radius: 0 8px 8px 0;
+      font-size: 11px;
+      line-height: 1.4;
+      color: #fca5a5;
+    }
+
+    /* SLIDE 9: CONCLUSION & WRAPPER TO MOAT PATTERN */
+    .conclusion-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 30px;
+      flex-grow: 1;
+    }
+    .trajectory-timeline-vertical {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      padding-left: 20px;
+      border-left: 2px dashed rgba(255, 255, 255, 0.1);
+    }
+    .trajectory-node {
+      font-size: 11px;
+      position: relative;
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 6px;
+      display: inline-block;
+      width: fit-content;
+    }
+    .trajectory-node::before {
+      content: '';
+      position: absolute;
+      left: -26px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 10px;
+      height: 10px;
+      background: var(--primary);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--primary);
+    }
+    .trajectory-node.active-node {
+      background: rgba(6, 182, 212, 0.1);
+      border-color: var(--secondary);
+    }
+    .trajectory-node.active-node::before {
+      background: var(--secondary);
+      box-shadow: 0 0 10px var(--secondary);
+    }
+    
+    .takeaways-box {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+    }
+    .takeaway-item {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+    .takeaway-icon {
+      font-size: 18px;
+      color: var(--secondary);
+      margin-top: 3px;
+    }
+    .takeaway-text-area {
+      display: flex;
+      flex-direction: column;
+    }
+    .takeaway-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+    .takeaway-desc {
+      font-size: 12.5px;
+      line-height: 1.45;
+      color: var(--text-muted);
+    }
+
+    /* NAVIGATION INTERFACES */
+    #nav-bar {
+      width: 100%;
+      height: 80px;
+      background: rgba(7, 8, 14, 0.85);
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--trans-fast);
+    }
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--primary);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+    .nav-btn:active {
+      transform: translateY(0);
+    }
+    .nav-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+      transform: none;
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .progress-bar-container {
+      flex-grow: 1;
+      max-width: 600px;
+      margin: 0 30px;
+      position: relative;
+    }
+    .progress-track {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--grad-main);
+      width: 0%;
+      border-radius: 3px;
+      transition: width var(--trans-normal);
+    }
+    .slide-counter {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      font-family: 'Orbitron', sans-serif;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+
+    .menu-trigger {
+      font-size: 13px;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 8px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      transition: all var(--trans-fast);
+    }
+    .menu-trigger:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--primary);
+    }
+
+    /* FLOATING JUMP MENU Drawer */
+    #jump-menu {
+      position: fixed;
+      bottom: 90px;
+      right: 40px;
+      background: rgba(7, 8, 14, 0.95);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      width: 320px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+      transform: translateY(20px) scale(0.95);
+      opacity: 0;
+      visibility: hidden;
+      transition: all var(--trans-normal);
+      z-index: 100;
+    }
+    #jump-menu.open {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+      visibility: visible;
+    }
+    .menu-header {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      color: var(--secondary);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .menu-close {
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .menu-list {
+      list-style-type: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .menu-item {
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      transition: all var(--trans-fast);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .menu-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: #fff;
+    }
+    .menu-item.active {
+      background: rgba(139, 92, 246, 0.1);
+      color: #fff;
+      border-left: 2px solid var(--primary);
+      padding-left: 10px;
+    }
+
+    /* KEYBOARD SHORTCUTS HINT overlay */
+    .keyboard-hint {
+      position: absolute;
+      bottom: 95px;
+      left: 40px;
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      opacity: 0.7;
+    }
+    .key-badge {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: monospace;
+      color: #fff;
+    }
+
+    /* RESPONSIVENESS */
+    @media (max-width: 1024px) {
+      h2 { font-size: 26px; }
+      .slide-card { padding: 25px; }
+      .timeline-dashboard {
+        grid-template-columns: 240px 1fr;
+      }
+      .principles-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .predictions-grid {
+        grid-template-columns: 1fr;
+        overflow-y: auto;
+      }
+    }
+
+    @media (max-width: 768px) {
+      #presentation-container {
+        align-items: flex-start;
+        padding-top: 20px;
+      }
+      .slide {
+        height: 78vh;
+      }
+      .philosophy-grid, .conclusion-grid {
+        grid-template-columns: 1fr;
+        overflow-y: auto;
+      }
+      .timeline-dashboard {
+        grid-template-columns: 1fr;
+      }
+      .timeline-menu {
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        flex-direction: row;
+        max-height: 120px;
+        padding-bottom: 8px;
+      }
+      .timeline-btn {
+        flex-shrink: 0;
+        width: 160px;
+      }
+      .shift-grid {
+        grid-template-columns: 1fr;
+        overflow-y: auto;
+      }
+      .principles-grid {
+        grid-template-columns: 1fr;
+      }
+      .excluded-grid {
+        grid-template-columns: 1fr;
+        overflow-y: auto;
+      }
+      .forces-grid {
+        grid-template-columns: 1fr;
+        overflow-y: auto;
+      }
+      #nav-bar {
+        padding: 0 15px;
+        height: 70px;
+      }
+      .keyboard-hint {
+        display: none;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 0;
+      }
+      body {
+        overflow: visible !important;
+        background: #07080e !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      #nav-bar, .bg-mesh, .bg-grid, .keyboard-hint, #jump-menu {
+        display: none !important;
+      }
+      #presentation-container {
+        display: block !important;
+        position: relative !important;
+        height: auto !important;
+        overflow: visible !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .slide {
+        position: relative !important;
+        width: 100vw !important;
+        max-width: 100% !important;
+        height: 100vh !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        transform: none !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        display: flex !important;
+        margin: 0 !important;
+        padding: 20px !important;
+        box-sizing: border-box !important;
+      }
+      .slide-card {
+        height: calc(100vh - 40px) !important;
+        box-shadow: none !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        background: #0d101f !important;
+        box-sizing: border-box !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- BACKGROUND DECORATIONS -->
+  <div class="bg-mesh">
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
+  </div>
+  <div class="bg-grid"></div>
+
+  <!-- PRESENTATION BODY -->
+  <div id="presentation-container">
+
+    <!-- SLIDE 1: COVER PAGE -->
+    <div class="slide active" id="slide-1">
+      <div class="slide-card cover-card">
+        <div class="cover-badge">Lab K3 LAB16 - Track 1</div>
+        <h1 class="cover-title">Cursor: The AI-Native Evolution</h1>
+        <p class="cover-desc">Phân tích chuyên sâu (Teardown) hành trình tiến hóa, các nguyên lý đảo chiều (Revert Principles), và cấu trúc phòng thủ (Moat) của sản phẩm công nghệ lập trình dẫn đầu kỷ nguyên AI.</p>
+        
+        <div class="cover-meta">
+          <div class="meta-box">
+            <div class="meta-label">Nhóm thực hiện</div>
+            <div class="member-list">
+              <span class="member-tag">Nguyễn Quang Huy</span>
+              <span class="member-tag">Lăng Thị Phương Huế</span>
+              <span class="member-tag">Cao Các Tường</span>
+              <span class="member-tag">Đinh Lê Quỳnh Phương</span>
+              <span class="member-tag">Nguyễn Khánh Toàn</span>
+            </div>
+          </div>
+          <div class="meta-box" style="margin-left: auto;">
+            <div class="meta-label">Sản phẩm nghiên cứu</div>
+            <div class="meta-value"><i class="fa-solid fa-code" style="color: var(--secondary); margin-right: 5px;"></i> Cursor Editor</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: CORE PHILOSOPHY & JTBD -->
+    <div class="slide" id="slide-2">
+      <div class="slide-card">
+        <div class="slide-header">
+          <div class="slide-title-area">
+            <i class="fa-solid fa-brain slide-icon"></i>
+            <h2>Triết Lý AI-Native & JTBD Cốt Lõi</h2>
+          </div>
+          <div class="slide-subtitle">02 / Triết lý</div>
+        </div>
+        
+        <div class="slide-body">
+          <div class="philosophy-grid">
+            <div class="card-dark-gradient highlight-glow-violet">
+              <div class="section-title purple-title">
+                <i class="fa-solid fa-circle-dot"></i> So sánh bản chất
+              </div>
+              <table class="comp-table">
+                <thead>
+                  <tr>
+                    <th>Khía cạnh</th>
+                    <th>AI-Enabled (Copilot, ChatGPT)</th>
+                    <th>AI-Native (Cursor Editor)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Surface (Bề mặt)</strong></td>
+                    <td>Extension cài thêm hoặc chatbot ngoài</td>
+                    <td>Sở hữu toàn bộ IDE/Editor riêng</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Interaction Loop</strong></td>
+                    <td>Copy/paste thủ công, input đứt quãng</td>
+                    <td>Closed-loop (Context → Edit → Test → Review)</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Quyền kiểm soát</strong></td>
+                    <td>Bị giới hạn bởi API và UI của IDE gốc</td>
+                    <td>Can thiệp sâu vào file tree, terminal, linter, LSP</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Moat (Phòng thủ)</strong></td>
+                    <td>Dễ bị thay thế khi đối thủ có model tốt hơn</td>
+                    <td>Nằm ở quy trình làm việc (Workflow) & Ngữ cảnh (Context)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="card-dark-gradient highlight-glow-cyan jtbd-card">
+              <div class="section-title">
+                <i class="fa-solid fa-bullseye"></i> Primary JTBD (Jobs-to-be-Done)
+              </div>
+              <p style="font-size: 13px; color: var(--text-muted);">Mô tả tiến bộ cốt lõi mà lập trình viên chuyên nghiệp hướng tới:</p>
+              <div class="jtbd-quote">
+                "Khi phải thay đổi một codebase thật dưới áp lực giao hàng, hãy giúp tôi chuyển ý định thành thay đổi có thể review và kiểm chứng mà không phải tự gom context hoặc qua lại giữa chat, editor và terminal, để tôi ship nhanh hơn nhưng vẫn kiểm soát chất lượng."
+              </div>
+              <div style="margin-top: 10px;">
+                <p style="font-size: 12px; color: var(--text-muted); font-weight: 600; margin-bottom: 5px;">Các Job bổ trợ:</p>
+                <div class="member-list">
+                  <span class="member-tag" style="font-size:11px;">Hiểu codebase lạ nhanh</span>
+                  <span class="member-tag" style="font-size:11px;">Giảm công việc cơ học</span>
+                  <span class="member-tag" style="font-size:11px;">Giao việc cho Agent chạy nền</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: SEGMENT SHIFT & EVOLUTION -->
+    <div class="slide" id="slide-3">
+      <div class="slide-card">
+        <div class="slide-header">
+          <div class="slide-title-area">
+            <i class="fa-solid fa-users-gear slide-icon"></i>
+            <h2>Tiến Hóa Người Dùng & Sản Phẩm (Segment Shift)</h2>
+          </div>
+          <div class="slide-subtitle">03 / Phân khúc</div>
+        </div>
+        
+        <div class="slide-body">
+          <div class="shift-grid">
+            <!-- 2023 -->
+            <div class="shift-card">
+              <div class="shift-year">2023</div>
+              <div class="shift-user-title">AI-Curious VS Code Power User</div>
+              <ul class="shift-list">
+                <li>Đối tượng: Lập trình viên cá nhân, thích tối ưu năng suất, quen thuộc với Copilot và ChatGPT.</li>
+                <li>Nhu cầu sản phẩm: Giảm tối đa chi phí chuyển đổi (Switching Cost).</li>
+                <li>Giải pháp Cursor: Tính năng import 1-click extension/settings từ VS Code; đưa AI vào inline Cmd+K và codebase context chat.</li>
+              </ul>
+              <div class="shift-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+            </div>
+
+            <!-- 2024-2025 -->
+            <div class="shift-card">
+              <div class="shift-year">2024 - 2025</div>
+              <div class="shift-user-title">Professional Product Engineer</div>
+              <ul class="shift-list">
+                <li>Đối tượng: Lập trình viên xây dựng và duy trì codebase thực tế dưới áp lực thời gian của startup/product teams.</li>
+                <li>Nhu cầu sản phẩm: Tự động hóa ở cấp tác vụ (Task delegation).</li>
+                <li>Giải pháp Cursor: Phát triển Composer/Agent, cấp quyền truy cập terminal, sửa đổi multi-file, hiển thị review diff.</li>
+              </ul>
+              <div class="shift-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+            </div>
+
+            <!-- 2025-2026 -->
+            <div class="shift-card" style="border-color: rgba(6, 182, 212, 0.2);">
+              <div class="shift-year" style="background: linear-gradient(135deg, var(--secondary) 0%, var(--accent) 100%); -webkit-background-clip: text;">2025 - 2026</div>
+              <div class="shift-user-title">Governed Teams & Enterprise</div>
+              <ul class="shift-list">
+                <li>Đối tượng: Tổ chức kỹ thuật chuyên nghiệp, doanh nghiệp yêu cầu bảo mật, quản trị ngân sách và quy trình lớn.</li>
+                <li>Nhu cầu sản phẩm: Sự an toàn, tính tuân thủ và khả năng tự động hóa không can thiệp (Always-on).</li>
+                <li>Giải pháp Cursor: Multi-agent plane, Sandbox Mode, Audit Logs, Team Rules, Automations, và Cursor SDK.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: INTERACTIVE TIMELINE DASHBOARD -->
+    <div class="slide" id="slide-4">
+      <div class="slide-card">
+        <div class="slide-header">
+          <div class="slide-title-area">
+            <i class="fa-solid fa-timeline slide-icon"></i>
+            <h2>8 Quyết Định Sản Phẩm Thay Đổi Trajectory</h2>
+          </div>
+          <div class="slide-subtitle">04 / Lộ trình</div>
+        </div>
+        
+        <div class="slide-body">
+          <div class="timeline-dashboard">
+            <!-- Sidebar buttons -->
+            <div class="timeline-menu" id="timeline-menu-container">
+              <!-- JS will render buttons here -->
+            </div>
+
+            <!-- Detail panel -->
+            <div class="card-dark-gradient highlight-glow-violet" style="overflow:hidden; display:flex; flex-direction:column;">
+              <div class="timeline-details" id="timeline-detail-panel">
+                <!-- JS will update contents dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: 8 REVERT PRINCIPLES -->
+    <div class="slide" id="slide-5">
+      <div class="slide-card">
+        <div class="slide-header">
+          <div class="slide-title-area">
+            <i class="fa-solid fa-puzzle-piece slide-icon"></i>
+            <h2>Hệ Thống Nguyên Lý Đảo Chiều (Revert Principles)</h2>
+          </div>
+          <div class="slide-subtitle">05 / Nguyên lý</div>
+        </div>
+        
+        <div class="slide-body" style="overflow-y: auto;">
+          <div class="principles-grid" id="principles-grid-container">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: EXCLUDED MILESTONES -->
+    <div class="slide" id="slide-6">
+      <div class="slide-card">
+        <div class="slide-header">
+          <div class="slide-title-area">
+            <i class="fa-solid fa-filter slide-icon"></i>
+            <h2>Chiến Lược Sàng Lọc (Excluded Milestones)</h2>
+          </div>
+          <div class="slide-subtitle">06 / Loại trừ</div>
+        </div>
+        
+        <div class="slide-body">
+          <div class="excluded-grid">
+            <div class="ex-card">
+              <div class="ex-header">
+                <div class="ex-title">1. One-click VS Code Import (04/05/2023)</div>
+                <div class="ex-badge">Drop</div>
+              </div>
+              <p class="ex-reason">Giảm chi phí chuyển đổi của nhà phát triển bằng cách giữ cấu hình và extensions quen thuộc.</p>
+              <div class="ex-counterfactual">
+                <strong>Lý do loại:</strong> Đây chỉ là chiến thuật phân phối (enabler) giúp tối ưu quyết định lớn là tự sở hữu editor; thiếu nó thì việc áp dụng khó hơn nhưng quỹ đạo độc lập vẫn không đổi.
+              </div>
+            </div>
+
+            <div class="ex-card">
+              <div class="ex-header">
+                <div class="ex-title">2. .cursor/rules & Repo Context (23/01/2025)</div>
+                <div class="ex-badge">Drop</div>
+              </div>
+              <p class="ex-reason">Đưa convention và shared context vào repo giúp định hướng cách code của Agent.</p>
+              <div class="ex-counterfactual">
+                <strong>Lý do loại:</strong> Chỉ tăng cường lớp ngữ cảnh hiện có. Milestone <em>Agent trong Composer (11/2024)</em> và <em>Enterprise Governance (10/2025)</em> đại diện cho các bước nhảy ranh giới kiểm soát mạnh hơn.
+              </div>
+            </div>
+
+            <div class="ex-card">
+              <div class="ex-header">
+                <div class="ex-title">3. Cursor Router (22/07/2026)</div>
+                <div class="ex-badge">Drop</div>
+              </div>
+              <p class="ex-reason">Tự động chọn model dựa trên độ phức tạp của task, chi phí và chất lượng.</p>
+              <div class="ex-counterfactual">
+                <strong>Lý do loại:</strong> Là tối ưu hóa kinh tế quan trọng. Tuy nhiên, nó không mở ra job mới hay phân khúc người dùng đột phá như Cursor SDK tạo ra platform.
+              </div>
+            </div>
+
+            <div class="ex-card">
+              <div class="ex-header">
+                <div class="ex-title">4. Cursor 3 Agents Window (02/04/2026)</div>
+                <div class="ex-badge">Drop</div>
+              </div>
+              <p class="ex-reason">Thiết kế UI lấy Agent làm trung tâm thay vì chỉ hiển thị file/editor.</p>
+              <div class="ex-counterfactual">
+                <strong>Lý do loại:</strong> Trùng lặp về ý nghĩa chiến lược (double-counting). Đây chỉ là biểu hiện cụ thể hơn về mặt giao diện của thuyết <em>Multi-agent</em> đã thiết lập ở Cursor 2.0.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: FOUR FORCES OF ADOPTION -->
+    <div class="slide" id="slide-7">
+      <div class="slide-card">
+        <div class="slide-header">
+          <div class="slide-title-area">
+            <i class="fa-solid fa-arrows-spin slide-icon"></i>
+            <h2>4 Lực Đẩy Thúc Đẩy Chuyển Đổi (Four Forces)</h2>
+          </div>
+          <div class="slide-subtitle">07 / Lực đẩy</div>
+        </div>
+        
+        <div class="slide-body">
+          <div class="forces-grid">
+            <!-- PUSH -->
+            <div class="force-card force-glow-push">
+              <div class="force-badge">01</div>
+              <div class="force-header">
+                <i class="fa-solid fa-right-to-bracket force-icon push-color"></i>
+                <div class="force-title">Lực Đẩy (Push) từ hiện tại</div>
+              </div>
+              <div class="force-body">
+                Sự đứt gãy workflow khi liên tục di chuyển giữa editor (viết code), chatbot (hỏi đáp) và terminal (chạy thử). Việc tự thu thập ngữ cảnh thủ công mất thời gian và tăng gánh nặng cơ học.
+              </div>
+            </div>
+
+            <!-- PULL -->
+            <div class="force-card force-glow-pull" style="background: rgba(16, 185, 129, 0.03);">
+              <div class="force-badge">02</div>
+              <div class="force-header">
+                <i class="fa-solid fa-magnet force-icon pull-color"></i>
+                <div class="force-title">Lực Kéo (Pull) của Cursor</div>
+              </div>
+              <div class="force-body">
+                Một loop khép kín thống nhất: model hiểu toàn bộ codebase, tự động chỉnh sửa nhiều file, gọi lệnh terminal để kiểm tra linter/tests, và cung cấp diff rõ ràng để người dùng chỉ việc review.
+              </div>
+            </div>
+
+            <!-- ANXIETY -->
+            <div class="force-card force-glow-anxiety">
+              <div class="force-badge">03</div>
+              <div class="force-header">
+                <i class="fa-solid fa-triangle-exclamation force-icon anxiety-color"></i>
+                <div class="force-title">Sự Lo Ngại (Anxiety) khi chuyển đổi</div>
+              </div>
+              <div class="force-body">
+                Lo sợ Agent tạo mã sai hoặc phá hỏng codebase lớn; rủi ro rò rỉ dữ liệu bảo mật của doanh nghiệp; chi phí token/API khó kiểm soát; và nỗi sợ bị khóa chặt vào một nhà cung cấp model (lock-in).
+              </div>
+            </div>
+
+            <!-- HABIT -->
+            <div class="force-card force-glow-habit">
+              <div class="force-badge">04</div>
+              <div class="force-header">
+                <i class="fa-solid fa-anchor force-icon habit-color"></i>
+                <div class="force-title">Thói Quen Cũ (Habit) cản trở</div>
+              </div>
+              <div class="force-body">
+                Muscle memory với các phím tắt, giao diện, extensions và thói quen làm việc lâu năm trên VS Code nguyên bản. Các quy trình đánh giá mã nguồn thủ công từ xưa vẫn là cơ chế tin cậy chính của nhóm.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: FUTURE PREDICTIONS (2026-2027) -->
+    <div class="slide" id="slide-8">
+      <div class="slide-card">
+        <div class="slide-header">
+          <div class="slide-title-area">
+            <i class="fa-solid fa-wand-magic-sparkles slide-icon"></i>
+            <h2>Dự Đoán Tương Lai (Predictions 2026-2027)</h2>
+          </div>
+          <div class="slide-subtitle">08 / Dự đoán</div>
+        </div>
+        
+        <div class="slide-body">
+          <div class="predictions-grid">
+            <!-- Prediction 1 -->
+            <div class="pred-card">
+              <div class="pred-header">
+                <span class="pred-badge">Prediction 1</span>
+                <span class="pred-confidence">Confidence: 75%</span>
+              </div>
+              <div class="pred-title">Policy-Gated Self-Driving PR Lifecycle</div>
+              <p class="pred-desc">Cursor phát triển quy trình first-party cho phép Agent nhận webhook/event từ Linear/GitHub, tự khởi tạo sandbox sửa đổi code, chạy kiểm thử, mở PR và tự merge dựa trên cài đặt chính sách (policy-gated) của dự án mà không cần kích hoạt thủ công từng lệnh.</p>
+              <div class="pred-falsification">
+                <strong>Falsification:</strong> Quy trình merge tự động vẫn hoàn toàn phụ thuộc vào việc con người duyệt tay từng bước hoặc không có hệ thống quản lý policy cho agent tự động.
+              </div>
+            </div>
+
+            <!-- Prediction 2 -->
+            <div class="pred-card">
+              <div class="pred-header">
+                <span class="pred-badge">Prediction 2</span>
+                <span class="pred-confidence">Confidence: 70%</span>
+              </div>
+              <div class="pred-title">Router Là Default Economic Layer</div>
+              <p class="pred-desc">Hệ thống Cursor Router tự động phân cấp model theo độ phức tạp của tác vụ và giới hạn ngân sách (budget-policy) sẽ trở thành mặc định cho cả gói cá nhân và gói Teams; model cây nhà lá vườn của Cursor sẽ phụ trách phần lớn các workload nhạy cảm về giá.</p>
+              <div class="pred-falsification">
+                <strong>Falsification:</strong> Lựa chọn model thủ công vẫn là chế độ mặc định, hoặc Router không hỗ trợ thiết lập budget ở cấp độ task-level.
+              </div>
+            </div>
+
+            <!-- Prediction 3 -->
+            <div class="pred-card">
+              <div class="pred-header">
+                <span class="pred-badge">Prediction 3</span>
+                <span class="pred-confidence">Confidence: 80%</span>
+              </div>
+              <div class="pred-title">One Control Plane Across All Surfaces</div>
+              <p class="pred-desc">Hợp nhất nhận diện, chính sách bảo mật, giới hạn chi phí và lịch sử kiểm toán (audit trail) ở cấp Organization cho cả 4 bề mặt: desktop editor, cloud agents, Automations, và SDK; chính sách cấu hình một nơi được thực thi đồng bộ.</p>
+              <div class="pred-falsification">
+                <strong>Falsification:</strong> Các bề mặt vẫn tồn tại các admin/policy console độc lập, không đồng bộ được chính sách phân quyền và audit logs.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 9: CONCLUSION & KEY PATTERNS -->
+    <div class="slide" id="slide-9">
+      <div class="slide-card">
+        <div class="slide-header">
+          <div class="slide-title-area">
+            <i class="fa-solid fa-star slide-icon"></i>
+            <h2>Kết Luận: Cấu Trúc Phòng Thủ (Moat) Của Cursor</h2>
+          </div>
+          <div class="slide-subtitle">09 / Kết luận</div>
+        </div>
+        
+        <div class="slide-body">
+          <div class="conclusion-grid">
+            <div class="card-dark-gradient highlight-glow-violet">
+              <div class="section-title purple-title">
+                <i class="fa-solid fa-route"></i> Quỹ đạo tiến hóa (Trajectory)
+              </div>
+              
+              <div class="trajectory-timeline-vertical">
+                <div class="trajectory-node">AI-First Editor (Làm chủ giao diện tương tác)</div>
+                <div class="trajectory-node">Codebase-Aware Assistant (Nâng tầm ngữ cảnh dự án)</div>
+                <div class="trajectory-node">Tool-Using Agent (Cung cấp công cụ tự đóng loop)</div>
+                <div class="trajectory-node">Asynchronous Delegation (Giải phóng sự chú ý của Dev)</div>
+                <div class="trajectory-node">Multi-Agent Control Plane (Điều phối cô lập worktree)</div>
+                <div class="trajectory-node">Governed Enterprise System (Thiết lập tuân thủ tổ chức)</div>
+                <div class="trajectory-node">Event-Driven Worker (Tự động hóa theo sự kiện bên ngoài)</div>
+                <div class="trajectory-node active-node">Programmable Agent Infrastructure (SDK & Nền tảng)</div>
+              </div>
+            </div>
+
+            <div class="takeaways-box">
+              <div class="card-dark-gradient highlight-glow-cyan" style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-around; gap:15px;">
+                <div class="takeaway-item">
+                  <div class="takeaway-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                  <div class="takeaway-text-area">
+                    <span class="takeaway-title">Workflow & Context là Moat vững chắc nhất</span>
+                    <span class="takeaway-desc">Trong khi các model trí tuệ nhân tạo dần bị thương mại hóa (commodity), rào cản phòng thủ của Cursor dịch chuyển lên khả năng quản lý ngữ cảnh codebase, runtime cô lập và tích hợp sâu vào thói quen làm việc thực tế.</span>
+                  </div>
+                </div>
+
+                <div class="takeaway-item">
+                  <div class="takeaway-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                  <div class="takeaway-text-area">
+                    <span class="takeaway-title">Quy luật dịch chuyển giá trị của AI Product</span>
+                    <span class="takeaway-desc">Khi người dùng bắt đầu tin tưởng AI ở các tác vụ nhỏ, bước tiến hóa tiếp theo luôn là mở rộng quyền hạn ủy quyền (delegation boundary) bằng cách cấp thêm context, tools và runtime cô lập - chứ không chỉ là chờ đợi một model thô mạnh hơn.</span>
+                  </div>
+                </div>
+
+                <div class="takeaway-item" style="margin-bottom:0;">
+                  <div class="takeaway-icon"><i class="fa-solid fa-puzzle-piece"></i></div>
+                  <div class="takeaway-text-area">
+                    <span class="takeaway-title">Platform-ization (Nền tảng hóa)</span>
+                    <span class="takeaway-desc">Cursor SDK chuyển đổi coding agent từ một ứng dụng desktop tương tác cá nhân thành cơ sở hạ tầng có thể lập trình, nhúng trực tiếp vào CI/CD và các ứng dụng nội bộ của doanh nghiệp.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- NAVIGATION BAR -->
+  <div id="nav-bar">
+    <div class="nav-controls">
+      <button class="nav-btn" id="prev-btn" onclick="prevSlide()" title="Slide trước (Mũi tên Trái)"><i class="fa-solid fa-chevron-left"></i></button>
+      <button class="nav-btn" id="next-btn" onclick="nextSlide()" title="Slide sau (Mũi tên Phải / Phím cách)"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+
+    <div class="progress-bar-container">
+      <span class="slide-counter" id="slide-indicator">Slide 1 / 9</span>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-indicator"></div>
+      </div>
+    </div>
+
+    <div class="menu-trigger" onclick="toggleJumpMenu()">
+      <i class="fa-solid fa-bars"></i> Danh sách slide
+    </div>
+  </div>
+
+  <!-- FLOATING JUMP MENU DRAWER -->
+  <div id="jump-menu">
+    <div class="menu-header">
+      <span>CHỌN NHANH SLIDE</span>
+      <i class="fa-solid fa-xmark menu-close" onclick="toggleJumpMenu()"></i>
+    </div>
+    <ul class="menu-list" id="jump-menu-list">
+      <!-- Generated by JS -->
+    </ul>
+  </div>
+
+  <!-- KEYBOARD SHORTCUTS HINTS -->
+  <div class="keyboard-hint">
+    <span>Điều khiển: <span class="key-badge">Space</span> hoặc <span class="key-badge">→</span> Tiếp theo</span>
+    <span><span class="key-badge">←</span> Quay lại</span>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // DATA DEFINITION FOR INTERACTIVE PARTS
+    const milestones = [
+      {
+        date: "24/03/2023",
+        title: "Public Editor AI-First",
+        context: "Copilot đã chứng minh autocomplete AI hữu ích, nhưng người dùng hoài nghi về việc phải dùng một editor hoàn toàn mới. Cursor ra đời để chứng minh việc tự sở hữu surface editor cho phép AI thay đổi cách lập trình vượt xa giới hạn của các extension thông thường.",
+        principle: "AI-Native UX",
+        principleDesc: "Khi AI thay đổi các primitive cốt lõi của công việc, sản phẩm cần kiểm soát tầng giao tiếp đủ sâu để định hình lại workflow.",
+        pattern: "Chỉ build app/surface riêng khi khả năng của AI đòi hỏi cấu trúc tương tác mới; nếu extension vẫn làm được, app riêng chỉ làm tăng switching cost.",
+        link: "https://news.ycombinator.com/item?id=35285047",
+        sourceText: "Hacker News Launch Thread"
+      },
+      {
+        date: "19/07/2023",
+        title: "Codebase-Wide Context",
+        context: "Chat v2 và Cmd+K mang AI vào editor nhưng người dùng vẫn phải tự đưa context. Điểm nghẽn chuyển từ 'có model' sang 'model nhìn thấy đúng chỗ của repo và nhận phản hồi linter đúng lúc'.",
+        principle: "Context > Model",
+        principleDesc: "Trong các bài toán đặc thù của dự án, việc cung cấp chính xác ngữ cảnh và vòng phản hồi (feedback loop) mang lại giá trị lớn hơn nhiều việc chỉ nâng cấp model thô.",
+        pattern: "Trước khi đầu tư lớn vào model đắt đỏ, hãy thiết kế quy trình tự động thu thập và tối ưu hóa ngữ cảnh dự án một cách thông minh ngay trong UX.",
+        link: "https://cursor.com/changelog/0-2-49",
+        sourceText: "Cursor Changelog v0.2.49"
+      },
+      {
+        date: "24/11/2024",
+        title: "Agent Trong Composer",
+        context: "Nhờ codebase context tốt, AI có thể làm được tác vụ lớn hơn autocomplete. Cursor tích hợp Agent vào Composer, cấp quyền dùng terminal và tự động tìm kiếm, chỉnh sửa nhiều file để khép kín chuỗi công việc.",
+        principle: "Assistant → Agent",
+        principleDesc: "Khi AI đủ tin cậy ở các thao tác nhỏ, bước tiếp theo là mở rộng phạm vi ủy quyền (delegation) và cấp công cụ để nó tự hoàn thành chuỗi hành động.",
+        pattern: "Không tăng sự tự trị (autonomy) chỉ bằng prompt dài. Phải có công cụ chọn context, observable state, terminal access, cơ chế rollback và feedback rõ ràng.",
+        link: "https://cursor.com/changelog/0-43-x",
+        sourceText: "Cursor Changelog v0.43.x"
+      },
+      {
+        date: "04/06/2025",
+        title: "Background Agent & BugBot",
+        context: "Đưa Background Agent remote ra GA và tích hợp BugBot vào GitHub PR review. Tác vụ dài hơi được chạy nền giúp người dùng không bị khóa màn hình chú ý và kiểm tra chất lượng tự động ngay trong PR.",
+        principle: "x10 Value",
+        principleDesc: "Sự chuyển dịch và tin tưởng xảy ra khi cải tiến thay đổi đơn vị giá trị: từ việc giúp gõ phím nhanh hơn sang hoàn thành công việc hoàn toàn bất đồng bộ.",
+        pattern: "Khi tác vụ đồng bộ đã ổn định, hãy thiết kế cơ chế chạy bất đồng bộ (async execution) để trả lại sự tập trung và thời gian quý báu cho người dùng.",
+        link: "https://cursor.com/changelog/1-0",
+        sourceText: "Cursor GA 1.0 Announcement"
+      },
+      {
+        date: "29/10/2025",
+        title: "Cursor 2.0 & Composer Model",
+        context: "Hỗ trợ chạy song song 8 agent cô lập trong các worktree khác nhau nhằm tránh xung đột code, đồng thời giới thiệu model tự phát triển Composer được tối ưu hóa sâu với IDE harness.",
+        principle: "Wrapper → Moat",
+        principleDesc: "Khi khả năng truy cập API model bị phổ cập hóa, sự khác biệt của sản phẩm dịch chuyển về tầng điều phối (orchestration), runtime cô lập, và co-design giữa model với harness.",
+        pattern: "Chỉ nên tự phát triển model riêng khi việc đồng thiết kế (model-harness) cải thiện đột phá về chi phí/độ trễ cho tác vụ cụ thể của sản phẩm.",
+        link: "https://cursor.com/changelog/2-0",
+        sourceText: "Cursor 2.0 Launch Blog"
+      },
+      {
+        date: "31/10/2025",
+        title: "Enterprise Governance Layer",
+        context: "Ra mắt Hooks, Team Rules, Audit Logs và Sandbox Mode. Enterprise buyer yêu cầu chính sách bảo mật, khả năng kiểm toán hành động của Agent, kiểm soát secrets và ngăn chặn các rủi ro nguy hiểm.",
+        principle: "Define Good",
+        principleDesc: "Thành công của sản phẩm AI cho doanh nghiệp phải bao gồm các điều kiện ràng buộc bảo mật: Chất lượng = Đầu ra hữu ích + Tuân thủ chính sách + Khả năng kiểm tra.",
+        pattern: "Để đi từ khách hàng cá nhân (prosumer) lên doanh nghiệp (enterprise), hãy xây dựng các hook để doanh nghiệp có thể quan sát, giới hạn và kiểm toán hành động AI.",
+        link: "https://cursor.com/blog/enterprise",
+        sourceText: "Cursor Enterprise Launch"
+      },
+      {
+        date: "05/03/2026",
+        title: "Automations (Event-Driven)",
+        context: "Cho phép Agent chạy tự động theo lịch trình hoặc từ event của Slack, Linear, GitHub hay PagerDuty. Agent tự khởi động sandbox chạy việc và có bộ nhớ liên kết giữa các lần chạy.",
+        principle: "Workflow Moat",
+        principleDesc: "Giá trị của AI trở nên bền vững khi nó được kích hoạt bởi các sự kiện thật của hệ thống doanh nghiệp và trả kết quả về đúng nơi dòng công việc tiếp tục.",
+        pattern: "Kéo Agent ra khỏi sự phụ thuộc vào prompt thủ công trong editor bằng cách biến nó thành một event-driven worker tham gia vào vòng đời vận hành thực tế.",
+        link: "https://cursor.com/blog/automations",
+        sourceText: "Cursor Automations Release"
+      },
+      {
+        date: "29/04/2026",
+        title: "Cursor SDK Public",
+        context: "Public SDK cho phép xuất bản runtime, harness và models để lập trình chạy local hoặc cloud, tích hợp agent vào CI/CD hoặc làm nền tảng cho sản phẩm của bên thứ ba.",
+        principle: "Distribution",
+        principleDesc: "Khi năng lực cốt lõi đã ổn định, SDK giúp phân phối khả năng của sản phẩm vào sâu trong các hệ thống và bề mặt mà ứng dụng chính không thể phủ tới.",
+        pattern: "Chuyển từ một ứng dụng đích (destination app) thành một hạ tầng lập trình (programmable infrastructure) để tối đa hóa mạng lưới phân phối của sản phẩm.",
+        link: "https://cursor.com/blog/typescript-sdk",
+        sourceText: "Cursor SDK Launch Documentation"
+      }
+    ];
+
+    const principles = [
+      { num: "01", name: "AI-Native UX", desc: "Khi AI thay đổi các primitive cốt lõi của công việc, sản phẩm cần kiểm soát tầng giao tiếp đủ sâu để định hình lại workflow.", pattern: "Own the surface, own the interaction loop." },
+      { num: "02", name: "Context > Model", desc: "Trong bài toán domain-specific, việc cung cấp ngữ cảnh đúng và feedback đúng mang lại giá trị cao hơn đổi model thô.", pattern: "Đầu tư vào retrieval & feedback loop trước khi đổi model." },
+      { num: "03", name: "Assistant → Agent", desc: "Khi AI tin cậy ở thao tác nhỏ, bước tiếp theo là mở rộng phạm vi ủy quyền (delegation boundary) và tự đóng loop công việc.", pattern: "Cung cấp context, tools, state observation, và review path." },
+      { num: "04", name: "x10 Value", desc: "Sự chuyển dịch xảy ra khi giá trị thay đổi đơn vị đo lường: từ tiết kiệm từng phím gõ sang hoàn trả lại một khối thời gian chú ý.", pattern: "Chuyển dịch từ synchronous execution sang async background execution." },
+      { num: "05", name: "Wrapper → Moat", desc: "Khi API model bị commoditized, lợi thế nằm ở orchestration, isolated runtime, và co-design giữa model với harness.", pattern: "Tạo sự gắn kết chặt chẽ giữa model kinh tế và công cụ hỗ trợ." },
+      { num: "06", name: "Define Good", desc: "Enterprise AI chỉ thực sự tốt khi output đi kèm với compliance, auditability, secrets protection, và controllable risk.", pattern: "Biến hành vi AI thành thứ có thể giới hạn và kiểm toán." },
+      { num: "07", name: "Workflow Moat", desc: "AI trở nên bền vững khi gắn với các trigger thật, sự kiện thật, dùng context thật và trả kết quả vào nơi quy trình tiếp tục.", pattern: "Chuyển từ interactive agent sang event-driven automation worker." },
+      { num: "08", name: "Distribution", desc: "Khi năng lực cốt lõi đã vững chắc, SDK/API mở ra các jobs và surfaces mà ứng dụng chính không thể phủ tới.", pattern: "Export năng lực lõi dưới dạng programmable infrastructure." }
+    ];
+
+    // STATE VARIABLES
+    let currentSlideIndex = 1;
+    const totalSlides = 9;
+    let selectedMilestoneIndex = 0;
+
+    // DOM ELEMENTS
+    const slides = document.querySelectorAll('.slide');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const slideIndicator = document.getElementById('slide-indicator');
+    const progressIndicator = document.getElementById('progress-indicator');
+    const jumpMenu = document.getElementById('jump-menu');
+    const jumpMenuList = document.getElementById('jump-menu-list');
+
+    // INITIALIZATION
+    window.onload = function() {
+      renderTimelineMenu();
+      updateTimelineDetail(0);
+      renderPrinciplesGrid();
+      buildJumpMenu();
+      updateNavigationUI();
+      
+      // Add keyboard event listeners
+      document.addEventListener('keydown', handleKeyDown);
+    };
+
+    // KEYBOARD NAVIGATION HANDLER
+    function handleKeyDown(e) {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        nextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        prevSlide();
+      } else if (e.key === 'Escape') {
+        if (jumpMenu.classList.contains('open')) {
+          toggleJumpMenu();
+        }
+      }
+    }
+
+    // GENERAL SLIDE NAVIGATION
+    function showSlide(index) {
+      if (index < 1 || index > totalSlides) return;
+      
+      slides.forEach(slide => slide.classList.remove('active'));
+      document.getElementById(`slide-${index}`).classList.add('active');
+      
+      currentSlideIndex = index;
+      updateNavigationUI();
+    }
+
+    // JUMP MENU DRAWER
+    function toggleJumpMenu() {
+      jumpMenu.classList.toggle('open');
+    }
+
+    function buildJumpMenu() {
+      const slideTitles = [
+        "1. Trang bìa giới thiệu",
+        "2. Triết lý AI-Native & JTBD",
+        "3. Phân khúc & Tiến hóa người dùng",
+        "4. Lộ trình 8 quyết định thay đổi",
+        "5. Hệ thống 8 nguyên lý đảo chiều",
+        "6. Các cột mốc loại trừ",
+        "7. 4 lực đẩy của mô hình Adoption",
+        "8. Dự báo tương lai 2026-2027",
+        "9. Kết luận: Rào cản phòng thủ"
+      ];
+      
+      jumpMenuList.innerHTML = '';
+      slideTitles.forEach((title, index) => {
+        const li = document.createElement('li');
+        li.className = 'menu-item';
+        if (index === 0) li.classList.add('active');
+        li.textContent = title;
+        li.onclick = () => goToSlide(index + 1);
+        jumpMenuList.appendChild(li);
+      });
+    }
+
+    function goToSlide(index) {
+      showSlide(index);
+      if (jumpMenu.classList.contains('open')) {
+        toggleJumpMenu();
+      }
+    }
+
+    function nextSlide() {
+      if (currentSlideIndex < totalSlides) {
+        showSlide(currentSlideIndex + 1);
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlideIndex > 1) {
+        showSlide(currentSlideIndex - 1);
+      }
+    }
+
+    function updateNavigationUI() {
+      // Prev/Next buttons state
+      prevBtn.disabled = (currentSlideIndex === 1);
+      nextBtn.disabled = (currentSlideIndex === totalSlides);
+      
+      // Indicators
+      slideIndicator.textContent = `Slide ${currentSlideIndex} / ${totalSlides}`;
+      const progressPercent = ((currentSlideIndex - 1) / (totalSlides - 1)) * 100;
+      progressIndicator.style.width = `${progressPercent}%`;
+      
+      // Highlight active in jump menu
+      const menuItems = document.querySelectorAll('.menu-item');
+      menuItems.forEach((item, idx) => {
+        if (idx === currentSlideIndex - 1) {
+          item.classList.add('active');
+        } else {
+          item.classList.remove('active');
+        }
+      });
+    }
+
+    // TIMELINE DASHBOARD FUNCTIONS
+    function renderTimelineMenu() {
+      const container = document.getElementById('timeline-menu-container');
+      container.innerHTML = '';
+      
+      milestones.forEach((m, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `timeline-btn ${idx === 0 ? 'active' : ''}`;
+        btn.id = `t-btn-${idx}`;
+        btn.onclick = () => {
+          document.querySelectorAll('.timeline-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          updateTimelineDetail(idx);
+        };
+        
+        btn.innerHTML = `
+          <div>
+            <span class="tbtn-date">${m.date}</span>
+            <span class="tbtn-title">${m.title}</span>
+          </div>
+        `;
+        container.appendChild(btn);
+      });
+    }
+
+    function updateTimelineDetail(idx) {
+      selectedMilestoneIndex = idx;
+      const m = milestones[idx];
+      const panel = document.getElementById('timeline-detail-panel');
+      
+      // CSS fade effect triggers by re-assigning content
+      panel.style.opacity = 0;
+      panel.style.transform = 'translateY(5px)';
+      
+      setTimeout(() => {
+        panel.innerHTML = `
+          <div class="detail-header">
+            <div>
+              <span class="detail-date-badge">${m.date}</span>
+              <h3 class="detail-title" style="margin-top: 8px;">${m.title}</h3>
+            </div>
+            <div>
+              <span class="detail-section-title">Nguyên lý</span>
+              <div style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700; color: var(--primary);">
+                ${m.principle}
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 10px;">
+            <div class="detail-section-title">Bối cảnh & Quyết định sản phẩm</div>
+            <p class="detail-text">${m.context}</p>
+          </div>
+
+          <div class="detail-grid" style="margin-top: 15px;">
+            <div class="detail-card">
+              <div class="detail-section-title" style="color: var(--secondary);">Định nghĩa nguyên lý</div>
+              <p class="detail-text" style="font-size:12.5px;">${m.principleDesc}</p>
+            </div>
+            <div class="detail-card detail-pattern-box">
+              <div class="detail-section-title" style="color: var(--secondary);">Mẫu thiết kế tái sử dụng</div>
+              <p class="detail-text" style="font-size:12.5px; font-style: italic;">${m.pattern}</p>
+            </div>
+          </div>
+
+          <div style="margin-top: 15px; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 10px;">
+            <div class="detail-section-title" style="margin-bottom: 2px;">Nguồn kiểm chứng gốc</div>
+            <a href="${m.link}" target="_blank" class="detail-source-link">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> ${m.sourceText}
+            </a>
+          </div>
+        `;
+        panel.style.opacity = 1;
+        panel.style.transform = 'translateY(0)';
+      }, 150);
+      
+      // Sync logic to set transitions smoothly
+      panel.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+    }
+
+    // PRINCIPLES GRID FUNCTIONS
+    function renderPrinciplesGrid() {
+      const container = document.getElementById('principles-grid-container');
+      container.innerHTML = '';
+      
+      principles.forEach((p) => {
+        const card = document.createElement('div');
+        card.className = 'principle-card';
+        card.innerHTML = `
+          <span class="principle-num">${p.num}</span>
+          <h4 class="principle-name">${p.name}</h4>
+          <p class="principle-desc">${p.desc}</p>
+          <div class="principle-pattern">Pattern: ${p.pattern}</div>
+        `;
+        
+        // Add interactive effect to highlight this milestone in Slide 4 if clicked
+        card.onclick = () => {
+          // Find the corresponding milestone index
+          const miloIdx = milestones.findIndex(m => m.principle === p.name);
+          if (miloIdx !== -1) {
+            // Jump to slide 4
+            goToSlide(4);
+            // Click the button in timeline
+            setTimeout(() => {
+              const btn = document.getElementById(`t-btn-${miloIdx}`);
+              if (btn) btn.click();
+            }, 300);
+          }
+        };
+        
+        container.appendChild(card);
+      });
+    }
+
+    // SWIPE SUPPORT FOR MOBILE DEVICES
+    let touchstartX = 0;
+    let touchendX = 0;
+    
+    function checkDirection() {
+      if (touchendX < touchstartX - 50) {
+        nextSlide(); // Swipe left -> next slide
+      }
+      if (touchendX > touchstartX + 50) {
+        prevSlide(); // Swipe right -> prev slide
+      }
+    }
+    
+    document.addEventListener('touchstart', e => {
+      touchstartX = e.changedTouches[0].screenX;
+    });
+    
+    document.addEventListener('touchend', e => {
+      touchendX = e.changedTouches[0].screenX;
+      checkDirection();
+    });
+  </script>
+</body>
+</html>
