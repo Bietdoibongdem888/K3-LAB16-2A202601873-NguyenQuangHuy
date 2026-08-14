@@ -1,24 +1,70 @@
-# Competitor Context - Cursor (14/08/2026)
+# Competitor Context — Cursor
 
-## Competitive frame
+Ngày kiểm tra: **14/08/2026**. Chỉ giữ đối thủ tác động trực tiếp tới distribution, agent workflow, enterprise control, pricing hoặc moat của Cursor.
 
-Cuộc cạnh tranh không còn là “ai autocomplete tốt hơn”. Các đối thủ đang hội tụ vào **agent + environment + review + distribution + governance**.
+## 1. GitHub Copilot / Microsoft / VS Code
 
-| Competitor | Current strategic pressure | Implication for Cursor | Source |
+**Product:** GitHub Copilot cloud agent + Copilot app + VS Code.
+**Current capability:** Cloud agent nhận issue/prompt, research/plan/code trên branch, chạy test và tạo PR; GitHub-native app bắt đầu từ issue/PR/checks và hỗ trợ steer–review–ship trong một nơi.
+**Why it matters to Cursor:** Đây là threat mạnh nhất vì capability gần Cursor nhưng distribution nằm sẵn ở repo, PR, identity, billing và editor habit. Cursor phải thắng ở cross-model routing, runtime reliability và governed workflow—not chỉ agent UI.
+**Source:** [Copilot cloud agent](https://github.blog/changelog/2026-04-01-research-plan-and-code-with-copilot-cloud-agent/) · [Copilot app](https://github.blog/changelog/2026-05-14-github-copilot-app-is-now-available-in-technical-preview/)
+**Date:** 01/04/2026; 14/05/2026.
+
+## 2. OpenAI Codex
+
+**Product:** Codex app/CLI/IDE/cloud trong ChatGPT plans.
+**Current capability:** Multi-agent/worktree, diff review, skills, scheduled Automations, mobile control và programmatic credentials; usage được bundle qua ChatGPT subscriptions.
+**Why it matters to Cursor:** OpenAI sở hữu model và distribution bundle nên có thể nén giá của standalone agent. Cursor cần chứng minh harness/context/router đem lại cost per outcome tốt hơn và giữ model portability.
+**Source:** [Codex app](https://openai.com/index/introducing-the-codex-app/) · [Codex mobile/programmatic access](https://openai.com/index/work-with-codex-from-anywhere/)
+**Date:** 02/02/2026; 14/05/2026.
+
+## 3. Anthropic Claude Code
+
+**Product:** Terminal-native Claude Code trong Team/Enterprise.
+**Current capability:** Claude + Claude Code cùng subscription, premium seats, managed policy, usage analytics, spend caps và Compliance API.
+**Why it matters to Cursor:** Power user có thể giữ editor/terminal hiện hữu và đi thẳng tới model provider; enterprise buyer cũng có admin/compliance, làm yếu cả Pull lẫn governance differentiation của Cursor.
+**Source:** [Claude Code for Team & Enterprise](https://www.anthropic.com/news/claude-code-on-team-and-enterprise)
+**Date:** 20/08/2025 (current capability rechecked 14/08/2026).
+
+## 4. Google Jules
+
+**Product:** Asynchronous GitHub coding agent.
+**Current capability:** Chạy task trong cloud, làm việc với GitHub repo và được phân phối qua Google AI plans.
+**Why it matters to Cursor:** Background task bị commoditize; Cursor không thể coi “agent chạy nền” là moat mà phải khác biệt ở environment, verification, orchestration và enterprise workflow.
+**Source:** [Jules public launch](https://blog.google/innovation-and-ai/models-and-research/google-labs/jules-now-available/)
+**Date:** 06/08/2025 (current positioning rechecked 14/08/2026).
+
+## 5. Windsurf và agentic IDEs
+
+**Product:** Các AI-native editor cạnh tranh trực tiếp.
+**Current capability:** IDE-native chat/context/agent và VS Code-like migration path; product set xuất hiện trực tiếp cạnh Cursor trong user consideration.
+**Why it matters to Cursor:** Feature parity làm “AI editor” mất uniqueness. Threat này củng cố nhu cầu Cursor mở moat ra runtime, model economics, policy và distribution ngoài desktop. Không dùng nguồn này để claim market share hay feature chi tiết chưa kiểm chứng.
+**Source:** [Product Hunt alternative set](https://www.producthunt.com/products/cursor?launch=cursor-1-0)
+**Date:** Rechecked 14/08/2026.
+
+## Competitive Synthesis
+
+| Pressure | Competitor advantage | Cursor response signal | Prediction implication |
 |---|---|---|---|
-| GitHub Copilot / Microsoft | Coding agent chạy nền bằng GitHub Actions, tự mở PR; distribution nằm ngay repo và VS Code | Cursor không thể chỉ dựa vào IDE; phải thắng ở harness, context, multi-model và agent control plane | [GitHub](https://github.blog/changelog/2026-02-13-network-configuration-changes-for-copilot-coding-agent/) |
-| OpenAI Codex | App/CLI/IDE/cloud dưới một ChatGPT subscription; worktrees, multi-agent, automations | Model provider có thể bundle model + agent + distribution, nén margin của wrapper | [OpenAI](https://openai.com/index/introducing-the-codex-app/) |
-| Anthropic Claude Code | Terminal-native, được bundle vào Team/Enterprise, có admin/compliance | Power users có thể chọn harness gần model và giữ editor hiện tại | [Anthropic](https://www.anthropic.com/news/claude-code-on-team-and-enterprise) |
-| Google Jules | Async cloud agent tích hợp GitHub và bundle qua Google AI tiers | Background task trở thành commodity; reliability và workflow integration mới phân biệt | [Google](https://blog.google/innovation-and-ai/models-and-research/google-labs/jules-now-available/) |
-| VS Code | Nền tảng extension và muscle memory lớn; là alternative mặc định | Fork giúp Cursor giảm switching cost nhưng tạo dependency và nguy cơ feature parity từ upstream | [VS Code base evidenced by import decision](https://cursor.com/changelog/0-2-9) |
-| Windsurf / agentic IDEs | Cạnh tranh trực tiếp về IDE-native context, pricing và agent UX | Làm giảm uniqueness của “AI editor”; Cursor cần platform moat ngoài editor | [Product Hunt alternative set](https://www.producthunt.com/products/cursor?launch=cursor-1-0) |
+| Capability convergence | GitHub/OpenAI có multi-agent, cloud, review, automation | Cursor đầu tư risk policy, cloud runtime và artifacts | Productize verified, policy-gated lifecycle |
+| Distribution/bundling | GitHub sở hữu repo/PR/VS Code; OpenAI/Anthropic sở hữu model subscription | Cursor chạy desktop/web/mobile/Slack/CLI/SDK | Moat phải xuyên surface, không khóa trong editor |
+| Model commoditization | Model provider có direct harness và giá bundle | Router + Composer + keep-rate/cost-per-commit | Routing trở thành economic layer |
+| Enterprise procurement | GitHub/Anthropic có identity, policy và compliance | Organizations + hooks + audit + sandbox | Hợp nhất control plane org-level |
 
-## Strategic reading
+## Strongest Competitive Threat
 
-**FACT:** Cursor đã mở rộng từ editor sang cloud agents, Automations, SDK, Router và enterprise governance.
+**GitHub Copilot/Microsoft** là threat mạnh nhất: không chỉ copy capability mà còn loại bỏ switching cost nhờ repo, issue, PR, identity, billing và VS Code distribution đã có. OpenAI có model/bundle mạnh hơn, nhưng GitHub trực tiếp sở hữu workflow mà current Cursor user đang cố hoàn thành.
 
-**INFERENCE:** Moat bền hơn model access là tổ hợp context engine, agent harness, reliable environment, policy, distribution đa surface và organizational adoption. Từng thành phần có thể bị sao chép; lợi thế nằm ở loop tích hợp và tốc độ học từ workflow, không được hiểu là dữ liệu training độc quyền khi chưa có nguồn.
+## Defensible Moat Reading
 
-## Big Tech threat
+Cursor không thể dựa vào độc quyền model hoặc data lock-in chưa được chứng minh. Moat khả dĩ là tổ hợp:
 
-Mối đe dọa lớn nhất là bundle: GitHub/Microsoft sở hữu repo + IDE distribution; OpenAI/Anthropic/Google sở hữu frontier model và subscription. Nếu capability ngang nhau, Cursor phải chứng minh ROI tốt hơn trên toàn loop và cho phép model portability. Router và Composer là hai phản ứng: trừu tượng hóa vendor, đồng thời sở hữu một phần economics/model stack.
+```text
+repo/team context
++ reliable agent environment
++ risk-aware orchestration and verification
++ model routing economics
++ policy/audit across surfaces
+```
+
+Từng phần có thể bị copy; lợi thế chỉ tồn tại nếu loop tích hợp tạo outcome/cost tốt hơn bundle của platform incumbent.

@@ -1,6 +1,6 @@
 # Source Audit - Cursor
 
-Ngày kiểm tra: **14/08/2026**. Mỗi nguồn dưới đây đã được mở, đối chiếu publisher, ngày và claim sử dụng. `Primary` là nguồn do Cursor/Anysphere hoặc đối thủ liên quan trực tiếp công bố; `Community` là bằng chứng hành vi/cảm nhận, không được dùng để khẳng định số liệu công ty.
+Ngày kiểm tra: **14/08/2026**. Mỗi nguồn dưới đây đã được mở, đối chiếu publisher, ngày và claim sử dụng. `Primary` là nguồn do Cursor/Anysphere hoặc đối thủ liên quan trực tiếp công bố; `Community` là bằng chứng hành vi/cảm nhận, không được dùng để khẳng định số liệu công ty. HTTP audit cuối kiểm tra **57 URL duy nhất**. Lần quét đầu có 44 URL trả `200`, 12 URL Reddit/OpenAI/Product Hunt trả `403` do anti-bot và 1 URL changelog Cursor cũ trả `404`. Link hỏng đã được thay bằng [Cursor 0.2.0](https://cursor.com/changelog/0-2-0), nên trạng thái cuối là **45 URL trả `200`, 12 access-restricted và 0 broken**.
 
 | # | Nguồn | Loại | Claim được hỗ trợ | Kết quả |
 |---:|---|---|---|---|
@@ -21,9 +21,7 @@ Ngày kiểm tra: **14/08/2026**. Mỗi nguồn dưới đây đã được mở
 | 15 | [Cursor SDK (29/04/2026)](https://cursor.com/blog/typescript-sdk) | Primary | Đưa harness/runtime/models thành hạ tầng lập trình được | PASS |
 | 16 | [Organizations for Enterprise (03/06/2026)](https://cursor.com/blog/organizations) | Primary | Quản trị budget, model, permission theo đơn vị/cấp tổ chức | PASS |
 | 17 | [Cursor Router (22/07/2026)](https://cursor.com/changelog) | Primary | Router chọn model theo task và tối ưu cost/quality; admin controls | PASS |
-| 18 | [Cloud agent Builds (13/08/2026)](https://cursor.com/blog/builds) | Primary | Snapshot môi trường giúp startup nhanh và resilient hơn | PASS |
-| 19 | [AIUC-1 certification (13/08/2026)](https://cursor.com/blog/aiuc-1) | Primary | Agent safeguards được audit và adversarial test định kỳ | PASS |
-| 20 | [Cursor pricing](https://docs.cursor.com/account/pricing) | Primary | Cấu trúc usage-based; Teams $40/user/tháng; Enterprise custom | PASS |
+| 20 | [Cursor pricing](https://cursor.com/pricing) | Primary | Individual từ $20/tháng; Teams $40/user/tháng; on-demand usage; Enterprise custom + pooled usage/controls | PASS |
 | 21 | [Cursor Enterprise page](https://www.cursor.com/enterprise) | Primary | Indexing, privacy mặc định và nhu cầu quản trị enterprise | PASS |
 | 22 | [Background Agents documentation](https://docs.cursor.com/background-agent) | Primary | Remote VM, quyền GitHub, retention và rủi ro prompt injection | PASS |
 | 23 | [Cursor on Product Hunt](https://www.producthunt.com/products/cursor?launch=cursor-1-0) | Community | Người dùng coi tích hợp AI, context đa file và VS Code compatibility là lý do đổi | PASS |
@@ -47,6 +45,37 @@ Ngày kiểm tra: **14/08/2026**. Mỗi nguồn dưới đây đã được mở
 | 41 | [Three-month negative review (20/04/2025)](https://www.reddit.com/r/CursorAI/comments/1k3uz9k/my_honest_review_after_3_months_with_cursorai/) | Community/review | Cleanup/maintainability risk ở codebase phức tạp; chỉ delegate task bounded | PASS |
 | 42 | [Pricing backlash and switch-away (07/07/2025)](https://www.reddit.com/r/programming/comments/1lu8eyb/cursor_pay_more_get_less_and_dont_ask_how_it_works/) | Community/review | Usage opacity, quality/context complaints và cancellation intent | PASS |
 | 43 | [Remote SSH abandonment (30/10/2023)](https://www.reddit.com/r/datascience/comments/17k3svb/has_anyone_tried_cursorsh_ai_editor_for_data/) | Community/review | Editor reliability regression đủ khiến early user bỏ tool | PASS |
+| 44 | [Cursor 3 product announcement (02/04/2026)](https://cursor.com/blog/cursor-3) | Primary | Agent-centered multi-repo workspace và local/cloud handoff | PASS |
+| 45 | [Amplitude autonomous pipeline (15/04/2026)](https://cursor.com/blog/amplitude) | Primary/customer | Event → agent → risk classification; low-risk PR auto-merge | PASS |
+| 46 | [What we learned building cloud agents (02/06/2026)](https://cursor.com/blog/cloud-agent-lessons) | Primary/research | Cloud runtime cần durable execution, checkpoint và enterprise IT controls | PASS |
+| 47 | [Auto-review (11/06/2026)](https://cursor.com/blog/agent-autonomy-auto-review) | Primary/research | Contextual risk classifier cân bằng autonomy và approval | PASS |
+| 48 | [Agent swarms and model economics (20/07/2026)](https://cursor.com/blog/agent-swarm-model-economics) | Primary/research | Planner-worker mix, coordination và chênh lệch cost lớn | PASS |
+| 49 | [Cursor Router announcement (22/07/2026)](https://cursor.com/blog/router) | Primary | Production routing, admin modes, satisfaction/keep rate và cost per commit | PASS |
+| 50 | [Cloud-agent environment (30/07/2026)](https://cursor.com/blog/cloud-agent-environment) | Primary/research | Versioned, secure, self-healing environment là product layer | PASS |
+| 51 | [Composer 2.5](https://cursor.com/composer) | Primary | Cursor-owned price-efficient model cho long-running agents và SDK | PASS |
+| 52 | [GitHub Copilot cloud agent (01/04/2026)](https://github.blog/changelog/2026-04-01-research-plan-and-code-with-copilot-cloud-agent/) | Competitor primary | Research/plan/code trên branch, test và PR trong GitHub | PASS |
+| 53 | [GitHub Copilot app preview (14/05/2026)](https://github.blog/changelog/2026-05-14-github-copilot-app-is-now-available-in-technical-preview/) | Competitor primary | GitHub-native issue/PR/check context và agent review surface | PASS |
+| 54 | [Codex mobile and programmatic access (14/05/2026)](https://openai.com/index/work-with-codex-from-anywhere/) | Competitor primary | Mobile control, synced state và scoped credentials cho CI/automation | PASS |
+| 55 | [Cursor Start India (28/07/2026)](https://cursor.com/blog/cursor-start) | Primary | Local pricing, UPI và bundled Cursor models/cloud agents | PASS |
+
+## Prediction Signals
+
+| Signal cluster | Source IDs | Reading used in CP3 |
+|---|---|---|
+| Autonomous workflow | 12, 13, 45, 47 | Execution + triggers + artifacts + risk classification có thể thành policy-gated lifecycle |
+| Runtime/platform | 15, 46, 50 | Environment reliability và reusable harness là moat ngoài raw model |
+| Model economics | 17, 48, 49, 51 | Routing/role allocation giải pricing anxiety và model commoditization |
+| Enterprise control | 11, 16, 38, 47, 49 | Org hierarchy và policy primitives đang hội tụ |
+| Multi-surface distribution | 13, 15, 17, 44 | Agent/review state đã trải desktop, cloud, integrations và SDK |
+
+## Competitor Context
+
+| Pressure | Source IDs | Implication |
+|---|---|---|
+| GitHub owns repo/PR/identity/editor distribution | 52, 53 | Threat mạnh nhất; Cursor phải vượt feature parity bằng workflow/runtime/economics |
+| OpenAI bundles model + agent + automation | 29, 54 | Gây áp lực giá và distribution lên standalone agent product |
+| Anthropic bundles terminal agent + compliance | 30 | Power user và enterprise có thể giữ editor hiện hữu |
+| Google bundles async GitHub agent | 31 | Background execution tự thân không còn là moat |
 
 ## Mâu thuẫn và giới hạn
 
@@ -54,15 +83,19 @@ Ngày kiểm tra: **14/08/2026**. Mỗi nguồn dưới đây đã được mở
 - Case study và số liệu adoption do Cursor công bố là bằng chứng định hướng, không phải kiểm định độc lập. Memo ghi rõ nguồn khi dùng.
 - Không dùng valuation, ARR hay market share để suy ra product quality.
 - Product Hunt hiển thị launch năm 2024 cho listing hiện tại, trong khi HN và changelog xác nhận sản phẩm đã public từ 2023; timeline dùng ngày nguồn gốc cụ thể, không dùng nhãn tổng hợp của Product Hunt.
+- Hai URL từng ghi ngày 13/08/2026 (`/blog/builds`, `/blog/aiuc-1`) không xác minh được khi audit CP3 nên đã bị loại; không prediction nào dựa vào chúng.
+- HTTP `403` từ Reddit/OpenAI/Product Hunt được ghi là access restriction, không được tính là broken link; không có major claim nào phụ thuộc duy nhất vào các trang bị chặn.
 
 ## Tổng hợp
 
-- Nguồn đã kiểm tra: **43**
-- Primary/competitor primary: **30**
+- Nguồn đã kiểm tra và giữ lại trong registry: **53**
+- URL duy nhất trên toàn repository: **57**
+- Broken URL sau khi sửa: **0**
+- Primary/competitor primary: **40**
 - Founder interview: **1**
 - Community/review: **10**
 - Research độc lập: **2**
-- URL hoặc claim bị loại vì không đủ bằng chứng: **0**
+- URL hoặc claim bị loại vì không đủ bằng chứng: **2**
 
 ## CP1 final milestone coverage
 
