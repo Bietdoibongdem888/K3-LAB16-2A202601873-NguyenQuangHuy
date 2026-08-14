@@ -54,3 +54,22 @@ Primary JTBD là candidate 2; nó mô tả tiến bộ người dùng cần đ�
 - Source thật và hỗ trợ đúng claim: PASS
 - Use case/JTBD: PASS
 - Product và thành viên trong README: PASS
+
+## Checkpoint CP1 — Timeline & Revert nguyên lý
+
+CP1 chọn **8 product decisions** từ 18 candidates và dựng trajectory:
+
+```text
+AI-first editor → codebase context → Agent → async delegation
+→ multi-agent/model layer → enterprise governance
+→ Automations → programmable agent infrastructure
+```
+
+Deliverables:
+
+- [§1 Timeline trong memo](memo.md)
+- [Candidate scoring và KEEP/DROP](research/milestone_candidates.md)
+- [Principle reverts và reusable patterns](research/principle_reverts.md)
+- [Source audit](research/sources.md)
+
+**CP1: PASS — 28/30 self-assessment**
