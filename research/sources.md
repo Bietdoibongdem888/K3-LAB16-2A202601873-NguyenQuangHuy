@@ -10,10 +10,10 @@ Ngày kiểm tra: **14/08/2026**. Mỗi nguồn dưới đây đã được mở
 | 4 | [Advanced context for codebase-wide chat (19/07/2023)](https://cursor.com/changelog/0-2-49) | Primary | Kiểm soát context cho chat toàn codebase | PASS |
 | 5 | [New Composer UI, Agent, Commit Messages (24/11/2024)](https://cursor.com/changelog/0-43-x) | Primary | Agent trong Composer tự chọn context và dùng terminal | PASS |
 | 6 | [.cursor/rules & Better Codebase Understanding (23/01/2025)](https://cursor.com/changelog/0-45-x) | Primary | Rules lưu tri thức repo; model hiểu codebase tốt hơn | PASS |
-| 7 | [Cursor 1.0 changelog](https://www.cursor.com/en/changelog?v=1.0) | Primary | Background Agent GA, BugBot, memories, MCP, Jupyter | PASS |
+| 7 | [Cursor 1.0 changelog (04/06/2025)](https://cursor.com/changelog/1-0) | Primary | Background Agent GA, BugBot, memories, MCP, Jupyter | PASS |
 | 8 | [Cursor 1.3 (29/07/2025)](https://cursor.com/changelog/1-3) | Primary | Agent dùng terminal native; tăng khả năng quan sát context | PASS |
 | 9 | [Cursor 1.4 (06/08/2025)](https://cursor.com/changelog/1-4) | Primary | Agent gắn vào GitHub PR; công cụ context tốt hơn | PASS |
-| 10 | [Cursor 2.0](https://cursor.com/changelog/2-0) | Primary | Multi-agent, model Composer, browser, sandbox, audit log | PASS |
+| 10 | [Cursor 2.0 (29/10/2025)](https://cursor.com/changelog/2-0) | Primary | Multi-agent, model Composer, browser và sandbox | PASS |
 | 11 | [Introducing Cursor for Enterprise (31/10/2025)](https://cursor.com/blog/enterprise) | Primary | Hooks, Team Rules, analytics, audit, sandbox | PASS |
 | 12 | [Cloud agents can control their own computers (24/02/2026)](https://cursor.com/blog/agent-computer-use) | Primary | Cloud agent tự kiểm thử UI, tạo artifacts; hướng tới self-driving codebase | PASS |
 | 13 | [Automations (05/03/2026)](https://cursor.com/blog/automations) | Primary | Agent chạy theo lịch/event từ Slack, Linear, GitHub, PagerDuty, webhook | PASS |
@@ -54,3 +54,16 @@ Ngày kiểm tra: **14/08/2026**. Mỗi nguồn dưới đây đã được mở
 - Community/review: **5**
 - Research độc lập: **2**
 - URL hoặc claim bị loại vì không đủ bằng chứng: **0**
+
+## CP1 final milestone coverage
+
+| Final milestone | Original source re-opened 14/08/2026 | Claim/date supported |
+|---|---|---|
+| AI-first editor launch — 24/03/2023 | HN launch + founder interview | PASS |
+| Codebase-wide context — 19/07/2023 | Cursor 0.2.49 changelog | PASS |
+| Agent in Composer — 24/11/2024 | Cursor 0.43 changelog | PASS |
+| Background Agent GA — 04/06/2025 | Cursor 1.0 changelog | PASS |
+| Multi-agent + Composer — 29/10/2025 | Cursor 2.0 changelog | PASS |
+| Enterprise governance — 31/10/2025 | Cursor official blog | PASS |
+| Automations — 05/03/2026 | Cursor official blog | PASS |
+| Cursor SDK — 29/04/2026 | Cursor official blog | PASS |
