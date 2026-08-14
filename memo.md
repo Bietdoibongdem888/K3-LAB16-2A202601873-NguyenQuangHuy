@@ -11,6 +11,9 @@
 - Đinh Lê Quỳnh Phương — 2A202601865
 - Nguyễn Khánh Toàn — 2A202601843
 
+**Vì sao chọn sản phẩm này:**  
+Cursor là đại diện xuất sắc cho làn sóng phần mềm "AI-native" (thiết kế từ lõi xung quanh AI) thay vì chỉ là "AI-enabled", giúp chúng ta hiểu rõ cách các primitive lập trình mới thay đổi hoàn toàn năng suất lập trình và cách xây dựng rào cản phòng thủ (moat) của startup trước các Big Tech.
+
 # §1. Timeline các cập nhật lớn
 
 | Thời điểm | Cập nhật | Context lúc đó | Nguyên lý |
